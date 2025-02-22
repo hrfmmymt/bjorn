@@ -1,15 +1,11 @@
-export class ItemManage {
-  constructor(public id: number, public name: string, public point: 0 | 1 | 2 | 3 | 4 | 5) {}
-}
-
-export type ItemManageJson = {
+export type Item = {
   id: number;
   name: string;
   point: 0 | 1 | 2 | 3 | 4 | 5;
 };
 
 export type ItemState = {
-  allItemList: ItemManage[];
-  filteredItemList: ItemManage[] | null;
+  allItemList: Item[];
+  filteredItemList: Item[] | null;
   keyword: string;
 };

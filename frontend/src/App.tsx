@@ -1,21 +1,16 @@
 import { use, useActionState, useOptimistic, useRef } from "react";
 
-import { ItemManage, ItemManageJson, ItemState } from "./domain/item";
+import { Item, ItemState } from "./domain/item";
 import { handleAddItem, handleSearchItemList, handleUpdateItemPoint } from "./itemActions";
 
 const API_ENDPOINT = "http://localhost:8080/";
 
-// fetch items from API and return as ItemManage
-async function fetchManageItem() {
-  // simulate network latency
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  // fetch items from API and return as ItemManage
+// fetch items from API and return
+async function fetchManageItem(): Promise<Item[]> {
   const response = await fetch(`${API_ENDPOINT}items`);
-  const data = (await response.json()) as ItemManageJson[];
+  const data = (await response.json());
 
-  // map data to ItemManage
-  return data.map((item) => new ItemManage(item.id, item.name, item.point));
+  return data;
 }
 
 // fetch items from API
@@ -66,7 +61,7 @@ export default function App() {
     }
   );
 
-  const [optimisticItemList, updateOptimisticItemList] = useOptimistic<ItemManage[]>(
+  const [optimisticItemList, updateOptimisticItemList] = useOptimistic<Item[]>(
     itemState?.filteredItemList ?? itemState?.allItemList ?? []
   );
 
@@ -94,38 +89,36 @@ export default function App() {
         </button>
       </form>
 
-      <div>
-        <ul>
-          {optimisticItemList.map((item: ItemManage) => {
-            const itemPoint = item.point;
+      <ul>
+        {optimisticItemList.map((item: Item) => {
+          const itemPoint = item.point;
 
-            return (
-              <li key={item.id}>
-                {item.name}
-                <form action={updateItemState}>
-                  <input type="hidden" name="formType" value="update" />
-                  <input type="hidden" name="id" value={item.id} />
-                  <select
-                    key={`select-${item.id}-${itemPoint}`}
-                    name="point"
-                    defaultValue={itemPoint}
-                    onChange={(e) => {
-                      e.target.form?.requestSubmit();
-                    }}
-                  >
-                    <option value={0}>0</option>
-                    <option value={1}>1</option>
-                    <option value={2}>2</option>
-                    <option value={3}>3</option>
-                    <option value={4}>4</option>
-                    <option value={5}>5</option>
-                  </select>
-                </form>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+          return (
+            <li key={item.id}>
+              {item.name}
+              <form action={updateItemState}>
+                <input type="hidden" name="formType" value="update" />
+                <input type="hidden" name="id" value={item.id} />
+                <select
+                  key={`select-${item.id}-${itemPoint}`}
+                  name="point"
+                  defaultValue={itemPoint}
+                  onChange={(e) => {
+                    e.target.form?.requestSubmit();
+                  }}
+                >
+                  <option value={0}>0</option>
+                  <option value={1}>1</option>
+                  <option value={2}>2</option>
+                  <option value={3}>3</option>
+                  <option value={4}>4</option>
+                  <option value={5}>5</option>
+                </select>
+              </form>
+            </li>
+          );
+        })}
+      </ul>
     </>
   );
 }

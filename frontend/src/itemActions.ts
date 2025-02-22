@@ -1,10 +1,10 @@
-import { ItemManage, ItemManageJson, ItemState } from "./domain/item";
+import { Item, ItemState } from "./domain/item";
 import { getFormData } from './utils/form';
 
 export const handleAddItem = async (
   prevState: ItemState,
   formData: FormData,
-  updateOptimisticItemList: (prevState: ItemManage[]) => void
+  updateOptimisticItemList: (prevState: Item[]) => void
 ): Promise<ItemState> => {
 
   // get item name from input form
@@ -18,7 +18,7 @@ export const handleAddItem = async (
   // create optimistic item
   updateOptimisticItemList([
     ...prevState.allItemList,
-    new ItemManage(0, name, 0),
+    { id: 0, name, point: 0 },
   ]);
 
   // post item to API
@@ -69,13 +69,8 @@ export const handleSearchItemList = async (
     throw new Error("Failed to search item");
   }
 
-  // get item list from response
-  const data = (await response.json()) as ItemManageJson[];
-
-  // map item list to ItemManage
-  const filteredItemList = data.map(
-    (item) => new ItemManage(item.id, item.name, item.point)
-  );
+  // get item list from response with type
+  const filteredItemList: Item[] = await response.json();
 
   // return new state with filtered item list and keyword
   return {
@@ -88,7 +83,7 @@ export const handleSearchItemList = async (
 export const handleUpdateItemPoint = async (
   prevState: ItemState,
   rawFormData: FormData,
-  updateOptimisticItemList: (prevState: ItemManage[]) => void
+  updateOptimisticItemList: (prevState: Item[]) => void
 ): Promise<ItemState> => {
   // get form data from point input form
   const formData = getFormData(rawFormData);
