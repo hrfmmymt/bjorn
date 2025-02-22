@@ -9,5 +9,7 @@ export type ItemManageJson = {
 };
 
 export type ItemState = {
-  allItems: ItemManage[];
+  allItemList: ItemManage[];
+  filteredItemList: ItemManage[] | null;
+  keyword: string;
 };

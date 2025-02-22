@@ -1,4 +1,4 @@
-import { ItemState } from "./domain/item";
+import { ItemManage, ItemManageJson, ItemState } from "./domain/item";
 
 export const handleAddItem = async (
   prevState: ItemState,
@@ -32,6 +32,35 @@ export const handleAddItem = async (
 
   // return new state
   return {
-    allItems: [...prevState.allItems, addedItem],
+    ...prevState,
+    allItemList: [...prevState.allItemList, addedItem],
+    filteredItemList: prevState.filteredItemList
+      ? [...prevState.filteredItemList, addedItem]
+      : null,
+  };
+};
+
+export const handleSearchItemList = async (
+  prevState: ItemState,
+  formData: FormData
+): Promise<ItemState> => {
+  const keyword = formData.get("keyword") as string;
+
+  if (!keyword) {
+    throw new Error("Keyword is required");
+  }
+
+  const response = await fetch(
+    `http://localhost:8080/items?keyword=${keyword}`
+  );
+  const data = (await response.json()) as ItemManageJson[];
+  const filteredItemList = data.map(
+    (item) => new ItemManage(item.id, item.name, item.point)
+  );
+
+  return {
+    ...prevState,
+    filteredItemList,
+    keyword,
   };
 };
