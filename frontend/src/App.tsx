@@ -1,9 +1,9 @@
 import { use, useActionState, useRef } from "react";
 
 import { ItemManage, ItemManageJson, ItemState } from "./domain/item";
-import { handleAddItem, handleSearchItemList } from "./itemActions";
+import { handleAddItem, handleSearchItemList, handleUpdateItemPoint } from "./itemActions";
 
-const API_ENDPOINT = "http://localhost:8080/items";
+const API_ENDPOINT = "http://localhost:8080/";
 
 // fetch items from API and return as ItemManage
 async function fetchManageItem() {
@@ -11,13 +11,14 @@ async function fetchManageItem() {
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
   // fetch items from API and return as ItemManage
-  const response = await fetch(API_ENDPOINT);
+  const response = await fetch(`${API_ENDPOINT}items`);
   const data = (await response.json()) as ItemManageJson[];
 
   // map data to ItemManage
   return data.map((item) => new ItemManage(item.id, item.name, item.point));
 }
 
+// fetch items from API
 const fetchManageItemPromise = fetchManageItem();
 
 export default function App() {
@@ -39,17 +40,22 @@ export default function App() {
         throw new Error("Invalid state");
       }
 
+      // get form type
       const action = formData.get("formType") as string;
 
+      // action handler
       const actionHandlerList = {
         add: () => handleAddItem(prevState, formData),
         search: () => handleSearchItemList(prevState, formData),
+        update: () => handleUpdateItemPoint(prevState, formData),
       } as const;
 
-      if (action !== "add" && action !== "search") {
+      // validate action
+      if (action !== "add" && action !== "search" && action !== "update") {
         throw new Error(`Invalid action: ${action}`);
       }
 
+      // execute action handler
       return actionHandlerList[action]();
     },
     // initial state
@@ -89,7 +95,32 @@ export default function App() {
       <div>
         <ul>
           {itemList?.map((item: ItemManage) => {
-            return <li key={item.id}>{item.name}</li>;
+            const itemPoint = item.point;
+
+            return (
+              <li key={item.id}>
+                {item.name}
+                <form action={updateItemState}>
+                  <input type="hidden" name="formType" value="update" />
+                  <input type="hidden" name="id" value={item.id} />
+                  <select
+                    key={`select-${item.id}-${itemPoint}`}
+                    name="point"
+                    defaultValue={itemPoint}
+                    onChange={(e) => {
+                      e.target.form?.requestSubmit();
+                    }}
+                  >
+                    <option value={0}>0</option>
+                    <option value={1}>1</option>
+                    <option value={2}>2</option>
+                    <option value={3}>3</option>
+                    <option value={4}>4</option>
+                    <option value={5}>5</option>
+                  </select>
+                </form>
+              </li>
+            );
           })}
         </ul>
       </div>

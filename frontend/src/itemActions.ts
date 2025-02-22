@@ -1,4 +1,5 @@
 import { ItemManage, ItemManageJson, ItemState } from "./domain/item";
+import { getFormData } from './utils/form';
 
 export const handleAddItem = async (
   prevState: ItemState,
@@ -44,23 +45,83 @@ export const handleSearchItemList = async (
   prevState: ItemState,
   formData: FormData
 ): Promise<ItemState> => {
+  // get keyword from search input form
   const keyword = formData.get("keyword") as string;
 
   if (!keyword) {
     throw new Error("Keyword is required");
   }
 
+  // fetch items from API
   const response = await fetch(
     `http://localhost:8080/items?keyword=${keyword}`
   );
+
+  // validate response status
+  if (!response.ok) {
+    throw new Error("Failed to search item");
+  }
+
+  // get item list from response
   const data = (await response.json()) as ItemManageJson[];
+
+  // map item list to ItemManage
   const filteredItemList = data.map(
     (item) => new ItemManage(item.id, item.name, item.point)
   );
 
+  // return new state with filtered item list and keyword
   return {
     ...prevState,
     filteredItemList,
     keyword,
+  };
+};
+
+export const handleUpdateItemPoint = async (
+  prevState: ItemState,
+  rawFormData: FormData
+): Promise<ItemState> => {
+  // get form data from point input form
+  const formData = getFormData(rawFormData);
+
+  if (formData.formType !== 'update') {
+    throw new Error('Invalid form type');
+  }
+
+  // get item id from form data
+  const id = Number(formData.id);
+  // get point from form data
+  const point = Number(formData.point) as 0 | 1 | 2 | 3 | 4 | 5;
+
+  // fetch item from API
+  const response = await fetch(`http://localhost:8080/items/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ point }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update item");
+  }
+
+  // get updated item from response
+  const updatedItem = await response.json();
+  // update item list
+  const updatedItemList = prevState.allItemList.map((item) =>
+    item.id === id ? updatedItem : item
+  );
+  // update filtered item list
+  const filteredItemList = prevState.filteredItemList?.map((item) =>
+    item.id === id ? updatedItem : item
+  );
+
+  // return new state with updated item list and filtered item list
+  return {
+    ...prevState,
+    allItemList: updatedItemList,
+    filteredItemList: filteredItemList || null,
   };
 };
