@@ -1,5 +1,6 @@
 import { use, useActionState, useRef } from "react";
 import { ItemManage, ItemManageJson, ItemState } from "./domain/item";
+import { handleAddItem } from "./itemActions";
 
 const API_ENDPOINT = "http://localhost:8080/items";
 
@@ -34,38 +35,7 @@ export default function App() {
         throw new Error("Invalid state");
       }
 
-      // get item name from input form
-      const name = formData.get("itemName") as string;
-
-      // validate item name
-      if (!name) {
-        throw new Error("Item name is required");
-      }
-
-      // post item to API
-      const response = await fetch(API_ENDPOINT, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name }),
-      });
-
-      // validate response
-      if (!response.ok) {
-        throw new Error("Failed to add item");
-      }
-
-      // get added item from response
-      const addedItem = await response.json();
-
-      // Reset form
-      addFormRef.current?.reset();
-
-      // return new state
-      return {
-        allItems: [...prevState.allItems, addedItem],
-      };
+      return handleAddItem(prevState, formData);
     },
     // initial state
     {
