@@ -3,7 +3,8 @@ import { getFormData } from './utils/form';
 
 export const handleAddItem = async (
   prevState: ItemState,
-  formData: FormData
+  formData: FormData,
+  updateOptimisticItemList: (prevState: ItemManage[]) => void
 ): Promise<ItemState> => {
 
   // get item name from input form
@@ -13,6 +14,12 @@ export const handleAddItem = async (
   if (!name) {
     throw new Error("Item name is required");
   }
+
+  // create optimistic item
+  updateOptimisticItemList([
+    ...prevState.allItemList,
+    new ItemManage(0, name, 0),
+  ]);
 
   // post item to API
   const response = await fetch("http://localhost:8080/items", {
@@ -80,7 +87,8 @@ export const handleSearchItemList = async (
 
 export const handleUpdateItemPoint = async (
   prevState: ItemState,
-  rawFormData: FormData
+  rawFormData: FormData,
+  updateOptimisticItemList: (prevState: ItemManage[]) => void
 ): Promise<ItemState> => {
   // get form data from point input form
   const formData = getFormData(rawFormData);
@@ -106,6 +114,13 @@ export const handleUpdateItemPoint = async (
   if (!response.ok) {
     throw new Error("Failed to update item");
   }
+
+  // create optimistic item
+  updateOptimisticItemList(
+    prevState.allItemList.map((item) =>
+      item.id === id ? { ...item, point } : item
+    )
+  );
 
   // get updated item from response
   const updatedItem = await response.json();

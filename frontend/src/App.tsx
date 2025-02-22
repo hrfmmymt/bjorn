@@ -1,4 +1,4 @@
-import { use, useActionState, useRef } from "react";
+import { use, useActionState, useOptimistic, useRef } from "react";
 
 import { ItemManage, ItemManageJson, ItemState } from "./domain/item";
 import { handleAddItem, handleSearchItemList, handleUpdateItemPoint } from "./itemActions";
@@ -45,9 +45,9 @@ export default function App() {
 
       // action handler
       const actionHandlerList = {
-        add: () => handleAddItem(prevState, formData),
+        add: () => handleAddItem(prevState, formData, updateOptimisticItemList),
         search: () => handleSearchItemList(prevState, formData),
-        update: () => handleUpdateItemPoint(prevState, formData),
+        update: () => handleUpdateItemPoint(prevState, formData, updateOptimisticItemList),
       } as const;
 
       // validate action
@@ -66,7 +66,9 @@ export default function App() {
     }
   );
 
-  const itemList = itemState.filteredItemList || itemState.allItemList;
+  const [optimisticItemList, updateOptimisticItemList] = useOptimistic<ItemManage[]>(
+    itemState?.filteredItemList ?? itemState?.allItemList ?? []
+  );
 
   return (
     <>
@@ -94,7 +96,7 @@ export default function App() {
 
       <div>
         <ul>
-          {itemList?.map((item: ItemManage) => {
+          {optimisticItemList.map((item: ItemManage) => {
             const itemPoint = item.point;
 
             return (
