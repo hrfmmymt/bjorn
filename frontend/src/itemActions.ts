@@ -102,6 +102,14 @@ export const handleUpdateItemPoint = async (
   // get point from form data
   const point = Number(formData.point) as 0 | 1 | 2 | 3 | 4 | 5;
 
+  // 楽観的更新の対象を現在の表示状態に合わせる
+  const currentDisplayList = prevState.filteredItemList ?? prevState.allItemList;
+  updateOptimisticItemList(
+    currentDisplayList.map((item) =>
+      item.id === id ? { ...item, point } : item
+    )
+  );
+
   // fetch item from API
   const response = await fetch(`http://localhost:8080/items/${id}`, {
     method: "PUT",
@@ -115,28 +123,25 @@ export const handleUpdateItemPoint = async (
     throw new Error("Failed to update item");
   }
 
-  // create optimistic item
-  updateOptimisticItemList(
-    prevState.allItemList.map((item) =>
-      item.id === id ? { ...item, point } : item
-    )
-  );
-
   // get updated item from response
   const updatedItem = await response.json();
-  // update item list
+
+  // 更新後のアイテムリストを作成
   const updatedItemList = prevState.allItemList.map((item) =>
     item.id === id ? updatedItem : item
   );
-  // update filtered item list
-  const filteredItemList = prevState.filteredItemList?.map((item) =>
-    item.id === id ? updatedItem : item
-  );
+
+  // フィルター済みリストがある場合は、そちらも更新する
+  const updatedFilteredItemList = prevState.filteredItemList
+    ? prevState.filteredItemList.map((item) =>
+        item.id === id ? updatedItem : item
+      )
+    : null;
 
   // return new state with updated item list and filtered item list
   return {
     ...prevState,
     allItemList: updatedItemList,
-    filteredItemList: filteredItemList || null,
+    filteredItemList: updatedFilteredItemList,
   };
 };
