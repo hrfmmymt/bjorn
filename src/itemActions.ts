@@ -11,8 +11,8 @@ export const handleAddItem = async (
   if (!name) throw new Error("Item name is required");
 
   updateOptimisticItemList([
-    ...prevState.allItemList,
     { id: Date.now(), name, point: 0 },
+    ...prevState.allItemList,
   ]);
 
   const { data: addedItem, error } = await supabase
@@ -31,9 +31,9 @@ export const handleAddItem = async (
 
   return {
     ...prevState,
-    allItemList: [...prevState.allItemList, addedItem],
+    allItemList: [addedItem, ...prevState.allItemList],
     filteredItemList: prevState.filteredItemList
-      ? [...prevState.filteredItemList, addedItem]
+      ? [addedItem, ...prevState.filteredItemList]
       : null,
   };
 };
