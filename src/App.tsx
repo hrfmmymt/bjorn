@@ -7,6 +7,7 @@ import {
   startTransition,
   FormEvent,
 } from "react";
+import { CgClose } from "react-icons/cg";
 
 import { AuthProvider } from "./contexts/AuthProvider";
 import { useAuth } from "./hooks/useAuth";
@@ -100,6 +101,10 @@ function ItemManager() {
       .replace(/\//g, "-");
   };
 
+  const closeModal = () => {
+    (document.getElementById("my_modal_2") as HTMLDialogElement).close();
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <header className="flex justify-between items-center mb-8">
@@ -111,43 +116,69 @@ function ItemManager() {
         </button>
       </header>
 
-      <form
-        action={updateItemState}
-        ref={addFormRef}
-        className="mb-4 flex gap-2 items-end"
+      <button
+        className="btn"
+        onClick={() =>
+          (
+            document.getElementById("my_modal_2") as HTMLDialogElement
+          )?.showModal()
+        }
       >
-        <input type="hidden" name="formType" value="add" />
-        <div>
-          <label htmlFor="title" className="block text-sm mb-1">
-            タイトル
-          </label>
-          <input
-            id="title"
-            type="text"
-            name="title"
-            required
-            className="border rounded px-2 py-1"
-          />
+        新しいアイテムを追加
+      </button>
+      <dialog id="my_modal_2" className="modal">
+        <div className="modal-box relative">
+          <h3 className="font-bold text-lg mb-4">アイテムの追加</h3>
+          <form
+            action={updateItemState}
+            ref={addFormRef}
+            className="flex flex-col gap-2"
+          >
+            <input type="hidden" name="formType" value="add" />
+            <div>
+              <label htmlFor="title" className="flex items-center text-sm mb-1">
+                <span>タイトル</span>
+                <span className="text-rose-500 ml-1">(必須)</span>
+              </label>
+              <input
+                id="title"
+                type="text"
+                name="title"
+                required
+                className="w-full border rounded px-2 py-1 mb-4"
+              />
+            </div>
+            <div>
+              <label htmlFor="author" className="block text-sm mb-1">
+                著者
+              </label>
+              <input
+                id="author"
+                type="text"
+                name="author"
+                className="w-full border rounded px-2 py-1 mb-8"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={isPending}
+              className="w-24 mx-auto bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600 transition-colors"
+            >
+              追加
+            </button>
+          </form>
+          <button
+            className="absolute top-6 right-6"
+            type="button"
+            onClick={closeModal}
+          >
+            <CgClose aria-label="ダイアログを閉じる" size={28} />
+          </button>
         </div>
-        <div>
-          <label htmlFor="author" className="block text-sm mb-1">
-            著者（任意）
-          </label>
-          <input
-            id="author"
-            type="text"
-            name="author"
-            className="border rounded px-2 py-1"
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={isPending}
-          className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600 transition-colors"
-        >
-          追加
-        </button>
-      </form>
+        <form method="dialog" className="modal-backdrop">
+          <button>ダイアログを閉じる</button>
+        </form>
+      </dialog>
 
       <form
         ref={searchFormRef}
