@@ -24,6 +24,7 @@ function ItemManager() {
   const initialItemList = use(fetchManageItemPromise);
   const addFormRef = useRef<HTMLFormElement>(null);
   const searchFormRef = useRef<HTMLFormElement>(null);
+  const { signOut } = useAuth();
 
   const [itemState, updateItemState, isPending] = useActionState(
     async (prevState: ItemState | undefined, formData: FormData): Promise<ItemState> => {
@@ -55,6 +56,15 @@ function ItemManager() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-8">
+        <button
+          onClick={signOut}
+          className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
+        >
+          ログアウト
+        </button>
+      </div>
+
       <form action={updateItemState} ref={addFormRef} className="mb-4">
         <input type="hidden" name="formType" value="add" />
         <label htmlFor="itemName" className="mr-2">名前</label>
