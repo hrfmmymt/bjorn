@@ -1,59 +1,47 @@
 import { use, useActionState, useOptimistic, useRef } from "react";
 
+import { AuthProvider } from './contexts/AuthContext';
+import { useAuth } from './contexts/AuthContext';
+import { Auth } from './components/Auth';
 import { Item, ItemState } from "./domain/item";
 import { handleAddItem, handleSearchItemList, handleUpdateItemPoint } from "./itemActions";
+import { supabase } from "./supabase";
 
-const API_ENDPOINT = "http://localhost:8080/";
-
-// fetch items from API and return
+// Supabaseからアイテムを取得
 async function fetchManageItem(): Promise<Item[]> {
-  const response = await fetch(`${API_ENDPOINT}items`);
-  const data = (await response.json());
+  const { data, error } = await supabase
+    .from('items')
+    .select('*')
+    .order('created_at', { ascending: false });
 
+  if (error) throw error;
   return data;
 }
 
-// fetch items from API
 const fetchManageItemPromise = fetchManageItem();
 
-export default function App() {
-  // fetch items from API and store in initialItemList
+function ItemManager() {
   const initialItemList = use(fetchManageItemPromise);
-
-  // add form
   const addFormRef = useRef<HTMLFormElement>(null);
-  // search form
   const searchFormRef = useRef<HTMLFormElement>(null);
 
-  // add item to API and update state
   const [itemState, updateItemState, isPending] = useActionState(
-    async (
-      prevState: ItemState | undefined,
-      formData: FormData
-    ): Promise<ItemState> => {
-      if (!prevState) {
-        throw new Error("Invalid state");
-      }
+    async (prevState: ItemState | undefined, formData: FormData): Promise<ItemState> => {
+      if (!prevState) throw new Error("Invalid state");
 
-      // get form type
       const action = formData.get("formType") as string;
-
-      // action handler
       const actionHandlerList = {
         add: () => handleAddItem(prevState, formData, updateOptimisticItemList),
         search: () => handleSearchItemList(prevState, formData),
         update: () => handleUpdateItemPoint(prevState, formData, updateOptimisticItemList),
       } as const;
 
-      // validate action
       if (action !== "add" && action !== "search" && action !== "update") {
         throw new Error(`Invalid action: ${action}`);
       }
 
-      // execute action handler
       return actionHandlerList[action]();
     },
-    // initial state
     {
       allItemList: initialItemList,
       filteredItemList: null,
@@ -66,59 +54,74 @@ export default function App() {
   );
 
   return (
-    <>
-      <form action={updateItemState} ref={addFormRef}>
+    <div className="container mx-auto px-4 py-8">
+      <form action={updateItemState} ref={addFormRef} className="mb-4">
         <input type="hidden" name="formType" value="add" />
-        <label htmlFor="itemName">名前</label>
+        <label htmlFor="itemName" className="mr-2">名前</label>
         <input
           id="itemName"
           type="text"
           name="itemName"
+          className="border rounded px-2 py-1 mr-2"
         />
-        <button type="submit" disabled={isPending}>
+        <button type="submit" disabled={isPending} className="bg-blue-500 text-white px-4 py-1 rounded">
           追加
         </button>
       </form>
 
-      <form ref={searchFormRef} action={updateItemState}>
+      <form ref={searchFormRef} action={updateItemState} className="mb-4">
         <input type="hidden" name="formType" value="search" />
-        <label htmlFor="keyword">キーワード</label>
-        <input id="keyword" type="text" name="keyword" />
-        <button type="submit" disabled={isPending}>
+        <label htmlFor="keyword" className="mr-2">キーワード</label>
+        <input 
+          id="keyword" 
+          type="text" 
+          name="keyword"
+          className="border rounded px-2 py-1 mr-2"
+        />
+        <button type="submit" disabled={isPending} className="bg-blue-500 text-white px-4 py-1 rounded">
           検索
         </button>
       </form>
 
-      <ul>
-        {optimisticItemList.map((item: Item) => {
-          const itemPoint = item.point;
-
-          return (
-            <li key={item.id}>
-              {item.name}
-              <form action={updateItemState}>
-                <input type="hidden" name="formType" value="update" />
-                <input type="hidden" name="id" value={item.id} />
-                <select
-                  key={`select-${item.id}-${itemPoint}`}
-                  name="point"
-                  defaultValue={itemPoint}
-                  onChange={(e) => {
-                    e.target.form?.requestSubmit();
-                  }}
-                >
-                  <option value={0}>0</option>
-                  <option value={1}>1</option>
-                  <option value={2}>2</option>
-                  <option value={3}>3</option>
-                  <option value={4}>4</option>
-                  <option value={5}>5</option>
-                </select>
-              </form>
-            </li>
-          );
-        })}
+      <ul className="space-y-2">
+        {optimisticItemList.map((item: Item) => (
+          <li key={item.id} className="flex items-center gap-2">
+            <span>{item.name}</span>
+            <form action={updateItemState} className="inline">
+              <input type="hidden" name="formType" value="update" />
+              <input type="hidden" name="id" value={item.id} />
+              <select
+                name="point"
+                value={item.point}
+                onChange={(e) => e.target.form?.requestSubmit()}
+                className="border rounded px-2 py-1"
+              >
+                {[0,1,2,3,4,5].map(value => (
+                  <option key={value} value={value}>{value}</option>
+                ))}
+              </select>
+            </form>
+          </li>
+        ))}
       </ul>
-    </>
+    </div>
   );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
+}
+
+function AppContent() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+  }
+
+  return !user ? <Auth /> : <ItemManager />;
 }
