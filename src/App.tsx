@@ -1,8 +1,10 @@
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { use, useActionState, useOptimistic, useRef } from "react";
 
 import { AuthProvider } from './contexts/AuthProvider';
 import { useAuth } from './hooks/useAuth';
 import { Auth } from './components/Auth';
+import { AuthCallback } from './routes/AuthCallback';
 import { Item, ItemState } from "./domain/item";
 import { handleAddItem, handleSearchItemList, handleUpdateItemPoint } from "./itemActions";
 import { supabase } from "./supabase";
@@ -118,14 +120,6 @@ function ItemManager() {
   );
 }
 
-export default function App() {
-  return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
-  );
-}
-
 function AppContent() {
   const { user, loading } = useAuth();
 
@@ -135,3 +129,18 @@ function AppContent() {
 
   return !user ? <Auth /> : <ItemManager />;
 }
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/" element={<AppContent />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
+  );
+}
+
