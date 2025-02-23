@@ -1,22 +1,22 @@
-import { supabase } from '../supabase'
+import { supabase } from "../supabase";
 
 export function Auth() {
   const handleGoogleLogin = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+        provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
-        }
-      })
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
       if (error) {
         throw error;
       }
     } catch (error) {
       console.error(error);
-      alert('ログインエラーが発生しました');
+      alert("ログインエラーが発生しました");
     }
-  }
+  };
 
   return (
     <button
@@ -26,5 +26,5 @@ export function Auth() {
       <img src="/google-icon.svg" alt="Google" className="w-5 h-5" />
       Googleでログイン
     </button>
-  )
+  );
 }

@@ -1,17 +1,17 @@
 export type AddFormData = {
-  formType: 'add';
+  formType: "add";
   itemName: string;
 };
 
 export type SearchFormData = {
-  formType: 'search';
+  formType: "search";
   keyword: string;
 };
 
 export type UpdateFormData = {
-  formType: 'update';
+  formType: "update";
   id: string;
-  point: '0' | '1' | '2' | '3' | '4' | '5';
+  point: "0" | "1" | "2" | "3" | "4" | "5";
 };
 
 export type FormData = AddFormData | SearchFormData | UpdateFormData;
