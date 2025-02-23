@@ -1,7 +1,7 @@
 import { use, useActionState, useOptimistic, useRef } from "react";
 
-import { AuthProvider } from './contexts/AuthContext';
-import { useAuth } from './contexts/AuthContext';
+import { AuthProvider } from './contexts/AuthProvider';
+import { useAuth } from './hooks/useAuth';
 import { Auth } from './components/Auth';
 import { Item, ItemState } from "./domain/item";
 import { handleAddItem, handleSearchItemList, handleUpdateItemPoint } from "./itemActions";
