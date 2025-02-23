@@ -65,7 +65,7 @@ export const handleSearchItemList = async (
   const { data: filteredItemList, error } = await supabase
     .from("items")
     .select("*")
-    .ilike("name", `%${keyword}%`);
+    .ilike("title", `%${keyword}%`);
 
   if (error) throw error;
 

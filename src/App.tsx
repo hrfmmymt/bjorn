@@ -8,6 +8,7 @@ import {
   FormEvent,
 } from "react";
 import { CgClose } from "react-icons/cg";
+import { HiPlus } from "react-icons/hi";
 
 import { AuthProvider } from "./contexts/AuthProvider";
 import { useAuth } from "./hooks/useAuth";
@@ -116,181 +117,197 @@ function ItemManager() {
         </button>
       </header>
 
-      <button
-        className="btn"
-        onClick={() =>
-          (
-            document.getElementById("my_modal_2") as HTMLDialogElement
-          )?.showModal()
-        }
-      >
-        新しいアイテムを追加
-      </button>
-      <dialog id="my_modal_2" className="modal">
-        <div className="modal-box relative">
-          <h3 className="font-bold text-lg mb-4">アイテムの追加</h3>
-          <form
-            action={updateItemState}
-            ref={addFormRef}
-            className="flex flex-col gap-2"
-          >
-            <input type="hidden" name="formType" value="add" />
-            <div>
-              <label htmlFor="title" className="flex items-center text-sm mb-1">
-                <span>タイトル</span>
-                <span className="text-rose-500 ml-1">(必須)</span>
-              </label>
-              <input
-                id="title"
-                type="text"
-                name="title"
-                required
-                className="w-full border rounded px-2 py-1 mb-4"
-              />
-            </div>
-            <div>
-              <label htmlFor="author" className="block text-sm mb-1">
-                著者
-              </label>
-              <input
-                id="author"
-                type="text"
-                name="author"
-                className="w-full border rounded px-2 py-1 mb-8"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={isPending}
-              className="w-24 mx-auto bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600 transition-colors"
-            >
-              追加
-            </button>
-          </form>
-          <button
-            className="absolute top-6 right-6"
-            type="button"
-            onClick={closeModal}
-          >
-            <CgClose aria-label="ダイアログを閉じる" size={28} />
-          </button>
-        </div>
-        <form method="dialog" className="modal-backdrop">
-          <button>ダイアログを閉じる</button>
-        </form>
-      </dialog>
-
-      <form
-        ref={searchFormRef}
-        action={updateItemState}
-        className="flex gap-2 items-end mb-4"
-      >
-        <div>
-          <input type="hidden" name="formType" value="search" />
-          <label htmlFor="keyword" className="block text-sm mb-1">
-            キーワード
-          </label>
-          <input
-            id="keyword"
-            type="text"
-            name="keyword"
-            defaultValue={itemState.keyword}
-            className="border rounded px-2 py-1"
-          />
-        </div>
+      <div className="flex justify-between items-center mb-8">
         <button
-          type="submit"
-          disabled={isPending}
-          className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600 transition-colors"
+          className="flex items-center gap-4 bg-transparent hover:bg-blue-500 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+          onClick={() =>
+            (
+              document.getElementById("my_modal_2") as HTMLDialogElement
+            )?.showModal()
+          }
         >
-          検索
+          <HiPlus size={20} />
+          <span>新しいアイテムを追加</span>
         </button>
-        {itemState.filteredItemList && (
-          <button
-            type="button"
-            onClick={() => {
-              startTransition(() => {
-                const formData = new FormData();
-                formData.append("formType", "search");
-                formData.append("reset", "true");
-                updateItemState(formData);
-                if (searchFormRef.current) {
-                  searchFormRef.current.reset();
+        <dialog id="my_modal_2" className="modal">
+          <div className="modal-box relative">
+            <h3 className="font-bold text-lg mb-4">アイテムの追加</h3>
+            <form
+              action={(formData: FormData) => {
+                try {
+                  updateItemState(formData);
+                  closeModal();
+                  if (addFormRef.current) {
+                    addFormRef.current.reset();
+                  }
+                } catch (error) {
+                  console.error("Error adding item:", error);
                 }
-              });
-            }}
-            disabled={isPending}
-            className="bg-gray-500 text-white px-4 py-1 rounded hover:bg-gray-600 transition-colors"
-          >
-            絞り込み解除
-          </button>
-        )}
-      </form>
-
-      <table className="min-w-full">
-        <thead>
-          <tr>
-            <th className="py-2">タイトル</th>
-            <th className="py-2">著者</th>
-            <th className="py-2">追加日時</th>
-            <th className="py-2">ポイント</th>
-            <th className="py-2">操作</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200">
-          {optimisticItemList.map((item: Item) => (
-            <tr key={item.id}>
-              <td className="py-2">{item.title}</td>
-              <td className="py-2">{item.author || "N/A"}</td>
-              <td className="py-2">{formatDate(item.created_at)}</td>
-              <td className="py-2">
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    const formData = new FormData(e.currentTarget);
-                    updateItemState(formData);
-                  }}
-                  className="inline"
+              }}
+              ref={addFormRef}
+              className="flex flex-col gap-2"
+            >
+              <input type="hidden" name="formType" value="add" />
+              <div>
+                <label
+                  htmlFor="title"
+                  className="flex items-center text-sm mb-1"
                 >
-                  <input type="hidden" name="formType" value="update" />
-                  <input type="hidden" name="id" value={item.id} />
-                  <select
-                    name="point"
-                    value={item.point}
-                    onChange={(e) => {
-                      startTransition(() => {
-                        const formData = new FormData(e.target.form!);
-                        formData.set("point", e.target.value);
-                        updateItemState(formData);
-                      });
-                    }}
-                    className="border rounded px-2 py-1"
-                  >
-                    {[0, 1, 2, 3, 4, 5].map((value) => (
-                      <option key={value} value={value}>
-                        {value}
-                      </option>
-                    ))}
-                  </select>
-                </form>
-              </td>
-              <td className="py-2">
-                <form onSubmit={handleDeleteClick} className="inline">
-                  <input type="hidden" name="formType" value="delete" />
-                  <input type="hidden" name="id" value={item.id} />
-                  <button
-                    type="submit"
-                    disabled={isPending}
-                    className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-colors"
-                  >
-                    削除
-                  </button>
-                </form>
-              </td>
+                  <span>タイトル</span>
+                  <span className="text-rose-500 ml-1">(必須)</span>
+                </label>
+                <input
+                  id="title"
+                  type="text"
+                  name="title"
+                  required
+                  className="w-full border rounded px-2 py-1 mb-4"
+                />
+              </div>
+              <div>
+                <label htmlFor="author" className="block text-sm mb-1">
+                  著者
+                </label>
+                <input
+                  id="author"
+                  type="text"
+                  name="author"
+                  className="w-full border rounded px-2 py-1 mb-8"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={isPending}
+                className="w-24 mx-auto bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600 transition-colors"
+              >
+                追加
+              </button>
+            </form>
+            <button
+              className="absolute top-6 right-6"
+              type="button"
+              onClick={closeModal}
+            >
+              <CgClose aria-label="ダイアログを閉じる" size={28} />
+            </button>
+          </div>
+          <form method="dialog" className="modal-backdrop">
+            <button>ダイアログを閉じる</button>
+          </form>
+        </dialog>
+
+        <form
+          ref={searchFormRef}
+          action={updateItemState}
+          className="flex gap-2 items-end"
+        >
+          <div>
+            <input type="hidden" name="formType" value="search" />
+            <input
+              type="text"
+              name="keyword"
+              defaultValue={itemState.keyword}
+              className="border rounded px-2 py-1"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={isPending}
+            className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600 transition-colors"
+          >
+            検索
+          </button>
+          {itemState.filteredItemList && (
+            <button
+              type="button"
+              onClick={() => {
+                startTransition(() => {
+                  const formData = new FormData();
+                  formData.append("formType", "search");
+                  formData.append("reset", "true");
+                  updateItemState(formData);
+                  if (searchFormRef.current) {
+                    searchFormRef.current.reset();
+                  }
+                });
+              }}
+              disabled={isPending}
+              className="bg-gray-500 text-white px-4 py-1 rounded hover:bg-gray-600 transition-colors"
+            >
+              絞り込み解除
+            </button>
+          )}
+        </form>
+      </div>
+
+      {optimisticItemList.length === 0 ? (
+        <div className="w-full text-center">データがありません</div>
+      ) : (
+        <table className="min-w-full">
+          <thead>
+            <tr>
+              <th className="py-2 text-left">タイトル</th>
+              <th className="py-2 text-left">著者</th>
+              <th className="py-2 text-left">追加日時</th>
+              <th className="py-2 text-left">ポイント</th>
+              <th className="py-2 text-left">操作</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {optimisticItemList.map((item: Item) => (
+              <tr key={item.id}>
+                <td className="py-2">{item.title}</td>
+                <td className="py-2">{item.author || "N/A"}</td>
+                <td className="py-2">{formatDate(item.created_at)}</td>
+                <td className="py-2">
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const formData = new FormData(e.currentTarget);
+                      updateItemState(formData);
+                    }}
+                    className="inline"
+                  >
+                    <input type="hidden" name="formType" value="update" />
+                    <input type="hidden" name="id" value={item.id} />
+                    <select
+                      name="point"
+                      value={item.point}
+                      onChange={(e) => {
+                        startTransition(() => {
+                          const formData = new FormData(e.target.form!);
+                          formData.set("point", e.target.value);
+                          updateItemState(formData);
+                        });
+                      }}
+                      className="border rounded px-2 py-1"
+                    >
+                      {[0, 1, 2, 3, 4, 5].map((value) => (
+                        <option key={value} value={value}>
+                          {value}
+                        </option>
+                      ))}
+                    </select>
+                  </form>
+                </td>
+                <td className="py-2">
+                  <form onSubmit={handleDeleteClick} className="inline">
+                    <input type="hidden" name="formType" value="delete" />
+                    <input type="hidden" name="id" value={item.id} />
+                    <button
+                      type="submit"
+                      disabled={isPending}
+                      className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-colors"
+                    >
+                      削除
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }
