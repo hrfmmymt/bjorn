@@ -1,5 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { use, useActionState, useOptimistic, useRef } from "react";
+import {
+  use,
+  useActionState,
+  useOptimistic,
+  useRef,
+  startTransition,
+  FormEvent,
+} from "react";
 
 import { AuthProvider } from "./contexts/AuthProvider";
 import { useAuth } from "./hooks/useAuth";
@@ -14,7 +21,6 @@ import {
 } from "./itemActions";
 import { supabase } from "./supabase";
 
-// Supabaseからアイテムを取得
 async function fetchManageItem(): Promise<Item[]> {
   const { data, error } = await supabase
     .from("items")
@@ -71,7 +77,7 @@ function ItemManager() {
     itemState?.filteredItemList ?? itemState?.allItemList ?? []
   );
 
-  const handleDeleteClick = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleDeleteClick = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (window.confirm("このアイテムを削除してもよろしいですか？")) {
       const formData = new FormData(e.currentTarget);
@@ -110,25 +116,54 @@ function ItemManager() {
         </button>
       </form>
 
-      <form ref={searchFormRef} action={updateItemState} className="mb-4">
-        <input type="hidden" name="formType" value="search" />
-        <label htmlFor="keyword" className="mr-2">
-          キーワード
-        </label>
-        <input
-          id="keyword"
-          type="text"
-          name="keyword"
-          className="border rounded px-2 py-1 mr-2"
-        />
-        <button
-          type="submit"
-          disabled={isPending}
-          className="bg-blue-500 text-white px-4 py-1 rounded"
+      <div className="mb-4">
+        <form
+          ref={searchFormRef}
+          action={updateItemState}
+          className="flex gap-2 items-end"
         >
-          検索
-        </button>
-      </form>
+          <div>
+            <input type="hidden" name="formType" value="search" />
+            <label htmlFor="keyword" className="block text-sm mb-1">
+              キーワード
+            </label>
+            <input
+              id="keyword"
+              type="text"
+              name="keyword"
+              defaultValue={itemState.keyword}
+              className="border rounded px-2 py-1"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={isPending}
+            className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600 transition-colors"
+          >
+            検索
+          </button>
+          {itemState.filteredItemList && (
+            <button
+              type="button"
+              onClick={() => {
+                startTransition(() => {
+                  const formData = new FormData();
+                  formData.append("formType", "search");
+                  formData.append("reset", "true");
+                  updateItemState(formData);
+                  if (searchFormRef.current) {
+                    searchFormRef.current.reset();
+                  }
+                });
+              }}
+              disabled={isPending}
+              className="bg-gray-500 text-white px-4 py-1 rounded hover:bg-gray-600 transition-colors"
+            >
+              絞り込み解除
+            </button>
+          )}
+        </form>
+      </div>
 
       <ul className="space-y-2">
         {optimisticItemList.map((item: Item) => (

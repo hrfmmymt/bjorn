@@ -43,7 +43,16 @@ export const handleSearchItemList = async (
   formData: FormData
 ): Promise<ItemState> => {
   const keyword = formData.get("keyword") as string;
-  if (!keyword) throw new Error("Keyword is required");
+  const isReset = formData.get("reset") === "true";
+
+  // リセットの場合またはキーワードが空の場合は全件表示
+  if (isReset || !keyword) {
+    return {
+      ...prevState,
+      filteredItemList: null,
+      keyword: "",
+    };
+  }
 
   const { data: filteredItemList, error } = await supabase
     .from("items")
