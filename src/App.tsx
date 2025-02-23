@@ -10,6 +10,7 @@ import {
   handleAddItem,
   handleSearchItemList,
   handleUpdateItemPoint,
+  handleDeleteItem,
 } from "./itemActions";
 import { supabase } from "./supabase";
 
@@ -35,19 +36,25 @@ function ItemManager() {
   const [itemState, updateItemState, isPending] = useActionState(
     async (
       prevState: ItemState | undefined,
-      formData: FormData,
+      formData: FormData
     ): Promise<ItemState> => {
       if (!prevState) throw new Error("Invalid state");
 
-      const action = formData.get("formType") as string;
+      const action = formData.get("formType") as
+        | "add"
+        | "search"
+        | "update"
+        | "delete";
       const actionHandlerList = {
         add: () => handleAddItem(prevState, formData, updateOptimisticItemList),
         search: () => handleSearchItemList(prevState, formData),
         update: () =>
           handleUpdateItemPoint(prevState, formData, updateOptimisticItemList),
+        delete: () =>
+          handleDeleteItem(prevState, formData, updateOptimisticItemList),
       } as const;
 
-      if (action !== "add" && action !== "search" && action !== "update") {
+      if (!Object.keys(actionHandlerList).includes(action)) {
         throw new Error(`Invalid action: ${action}`);
       }
 
@@ -57,12 +64,20 @@ function ItemManager() {
       allItemList: initialItemList,
       filteredItemList: null,
       keyword: "",
-    },
+    }
   );
 
   const [optimisticItemList, updateOptimisticItemList] = useOptimistic<Item[]>(
-    itemState?.filteredItemList ?? itemState?.allItemList ?? [],
+    itemState?.filteredItemList ?? itemState?.allItemList ?? []
   );
+
+  const handleDeleteClick = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (window.confirm("このアイテムを削除してもよろしいですか？")) {
+      const formData = new FormData(e.currentTarget);
+      updateItemState(formData);
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -134,6 +149,17 @@ function ItemManager() {
                   </option>
                 ))}
               </select>
+            </form>
+            <form onSubmit={handleDeleteClick} className="inline">
+              <input type="hidden" name="formType" value="delete" />
+              <input type="hidden" name="id" value={item.id} />
+              <button
+                type="submit"
+                disabled={isPending}
+                className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-colors"
+              >
+                削除
+              </button>
             </form>
           </li>
         ))}

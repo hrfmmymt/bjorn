@@ -5,7 +5,7 @@ import { getFormData } from "./utils/form";
 export const handleAddItem = async (
   prevState: ItemState,
   formData: FormData,
-  updateOptimisticItemList: (prevState: Item[]) => void,
+  updateOptimisticItemList: (prevState: Item[]) => void
 ): Promise<ItemState> => {
   const name = formData.get("itemName") as string;
   if (!name) throw new Error("Item name is required");
@@ -40,7 +40,7 @@ export const handleAddItem = async (
 
 export const handleSearchItemList = async (
   prevState: ItemState,
-  formData: FormData,
+  formData: FormData
 ): Promise<ItemState> => {
   const keyword = formData.get("keyword") as string;
   if (!keyword) throw new Error("Keyword is required");
@@ -62,7 +62,7 @@ export const handleSearchItemList = async (
 export const handleUpdateItemPoint = async (
   prevState: ItemState,
   rawFormData: FormData,
-  updateOptimisticItemList: (prevState: Item[]) => void,
+  updateOptimisticItemList: (prevState: Item[]) => void
 ): Promise<ItemState> => {
   const formData = getFormData(rawFormData);
   if (formData.formType !== "update") throw new Error("Invalid form type");
@@ -74,8 +74,8 @@ export const handleUpdateItemPoint = async (
     prevState.filteredItemList ?? prevState.allItemList;
   updateOptimisticItemList(
     currentDisplayList.map((item) =>
-      item.id === id ? { ...item, point } : item,
-    ),
+      item.id === id ? { ...item, point } : item
+    )
   );
 
   const { data: updatedItem, error } = await supabase
@@ -88,12 +88,12 @@ export const handleUpdateItemPoint = async (
   if (error) throw error;
 
   const updatedItemList = prevState.allItemList.map((item) =>
-    item.id === id ? updatedItem : item,
+    item.id === id ? updatedItem : item
   );
 
   const updatedFilteredItemList = prevState.filteredItemList
     ? prevState.filteredItemList.map((item) =>
-        item.id === id ? updatedItem : item,
+        item.id === id ? updatedItem : item
       )
     : null;
 
@@ -101,5 +101,33 @@ export const handleUpdateItemPoint = async (
     ...prevState,
     allItemList: updatedItemList,
     filteredItemList: updatedFilteredItemList,
+  };
+};
+
+export const handleDeleteItem = async (
+  prevState: ItemState,
+  formData: FormData,
+  updateOptimisticItemList: (prevState: Item[]) => void
+): Promise<ItemState> => {
+  const id = Number(formData.get("id"));
+  if (!id) throw new Error("Item ID is required");
+
+  const currentDisplayList =
+    prevState.filteredItemList ?? prevState.allItemList;
+  updateOptimisticItemList(currentDisplayList.filter((item) => item.id !== id));
+
+  const { error } = await supabase.from("items").delete().eq("id", id);
+
+  if (error) {
+    throw error;
+  }
+
+  // 状態を更新
+  return {
+    ...prevState,
+    allItemList: prevState.allItemList.filter((item) => item.id !== id),
+    filteredItemList: prevState.filteredItemList
+      ? prevState.filteredItemList.filter((item) => item.id !== id)
+      : null,
   };
 };
