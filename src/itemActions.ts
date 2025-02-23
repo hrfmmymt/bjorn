@@ -7,11 +7,18 @@ export const handleAddItem = async (
   formData: FormData,
   updateOptimisticItemList: (prevState: Item[]) => void
 ): Promise<ItemState> => {
-  const name = formData.get("itemName") as string;
-  if (!name) throw new Error("Item name is required");
+  const title = formData.get("title") as string;
+  const author = formData.get("author") as string;
+  if (!title) throw new Error("Title is required");
 
   updateOptimisticItemList([
-    { id: Date.now(), name, point: 0 },
+    {
+      id: Date.now(),
+      title,
+      author: author || null,
+      point: 0,
+      created_at: new Date().toISOString(),
+    },
     ...prevState.allItemList,
   ]);
 
@@ -19,7 +26,8 @@ export const handleAddItem = async (
     .from("items")
     .insert([
       {
-        name,
+        title,
+        author: author || null,
         point: 0,
         user_id: (await supabase.auth.getUser()).data.user?.id,
       },

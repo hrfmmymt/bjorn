@@ -1,7 +1,9 @@
 export type Item = {
   id: number;
-  name: string;
+  title: string;
+  author: string | null;
   point: 0 | 1 | 2 | 3 | 4 | 5;
+  created_at: string;
 };
 
 export type ItemState = {

@@ -85,120 +85,168 @@ function ItemManager() {
     }
   };
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date
+      .toLocaleString("ja-JP", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+      })
+      .replace(/\//g, "-");
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
+      <header className="flex justify-between items-center mb-8">
         <button
           onClick={signOut}
-          className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
+          className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors ml-auto"
         >
           ログアウト
         </button>
-      </div>
+      </header>
 
-      <form action={updateItemState} ref={addFormRef} className="mb-4">
+      <form
+        action={updateItemState}
+        ref={addFormRef}
+        className="mb-4 flex gap-2 items-end"
+      >
         <input type="hidden" name="formType" value="add" />
-        <label htmlFor="itemName" className="mr-2">
-          名前
-        </label>
-        <input
-          id="itemName"
-          type="text"
-          name="itemName"
-          className="border rounded px-2 py-1 mr-2"
-        />
+        <div>
+          <label htmlFor="title" className="block text-sm mb-1">
+            タイトル
+          </label>
+          <input
+            id="title"
+            type="text"
+            name="title"
+            required
+            className="border rounded px-2 py-1"
+          />
+        </div>
+        <div>
+          <label htmlFor="author" className="block text-sm mb-1">
+            著者（任意）
+          </label>
+          <input
+            id="author"
+            type="text"
+            name="author"
+            className="border rounded px-2 py-1"
+          />
+        </div>
         <button
           type="submit"
           disabled={isPending}
-          className="bg-blue-500 text-white px-4 py-1 rounded"
+          className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600 transition-colors"
         >
           追加
         </button>
       </form>
 
-      <div className="mb-4">
-        <form
-          ref={searchFormRef}
-          action={updateItemState}
-          className="flex gap-2 items-end"
+      <form
+        ref={searchFormRef}
+        action={updateItemState}
+        className="flex gap-2 items-end mb-4"
+      >
+        <div>
+          <input type="hidden" name="formType" value="search" />
+          <label htmlFor="keyword" className="block text-sm mb-1">
+            キーワード
+          </label>
+          <input
+            id="keyword"
+            type="text"
+            name="keyword"
+            defaultValue={itemState.keyword}
+            className="border rounded px-2 py-1"
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={isPending}
+          className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600 transition-colors"
         >
-          <div>
-            <input type="hidden" name="formType" value="search" />
-            <label htmlFor="keyword" className="block text-sm mb-1">
-              キーワード
-            </label>
-            <input
-              id="keyword"
-              type="text"
-              name="keyword"
-              defaultValue={itemState.keyword}
-              className="border rounded px-2 py-1"
-            />
-          </div>
+          検索
+        </button>
+        {itemState.filteredItemList && (
           <button
-            type="submit"
+            type="button"
+            onClick={() => {
+              startTransition(() => {
+                const formData = new FormData();
+                formData.append("formType", "search");
+                formData.append("reset", "true");
+                updateItemState(formData);
+                if (searchFormRef.current) {
+                  searchFormRef.current.reset();
+                }
+              });
+            }}
             disabled={isPending}
-            className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600 transition-colors"
+            className="bg-gray-500 text-white px-4 py-1 rounded hover:bg-gray-600 transition-colors"
           >
-            検索
+            絞り込み解除
           </button>
-          {itemState.filteredItemList && (
-            <button
-              type="button"
-              onClick={() => {
-                startTransition(() => {
-                  const formData = new FormData();
-                  formData.append("formType", "search");
-                  formData.append("reset", "true");
-                  updateItemState(formData);
-                  if (searchFormRef.current) {
-                    searchFormRef.current.reset();
-                  }
-                });
-              }}
-              disabled={isPending}
-              className="bg-gray-500 text-white px-4 py-1 rounded hover:bg-gray-600 transition-colors"
-            >
-              絞り込み解除
-            </button>
-          )}
-        </form>
-      </div>
+        )}
+      </form>
 
-      <ul className="space-y-2">
-        {optimisticItemList.map((item: Item) => (
-          <li key={item.id} className="flex items-center gap-2">
-            <span>{item.name}</span>
-            <form action={updateItemState} className="inline">
-              <input type="hidden" name="formType" value="update" />
-              <input type="hidden" name="id" value={item.id} />
-              <select
-                name="point"
-                value={item.point}
-                onChange={(e) => e.target.form?.requestSubmit()}
-                className="border rounded px-2 py-1"
-              >
-                {[0, 1, 2, 3, 4, 5].map((value) => (
-                  <option key={value} value={value}>
-                    {value}
-                  </option>
-                ))}
-              </select>
-            </form>
-            <form onSubmit={handleDeleteClick} className="inline">
-              <input type="hidden" name="formType" value="delete" />
-              <input type="hidden" name="id" value={item.id} />
-              <button
-                type="submit"
-                disabled={isPending}
-                className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-colors"
-              >
-                削除
-              </button>
-            </form>
-          </li>
-        ))}
-      </ul>
+      <table className="min-w-full">
+        <thead>
+          <tr>
+            <th className="py-2">タイトル</th>
+            <th className="py-2">著者</th>
+            <th className="py-2">追加日時</th>
+            <th className="py-2">ポイント</th>
+            <th className="py-2">操作</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-200">
+          {optimisticItemList.map((item: Item) => (
+            <tr key={item.id}>
+              <td className="py-2">{item.title}</td>
+              <td className="py-2">{item.author || "N/A"}</td>
+              <td className="py-2">{formatDate(item.created_at)}</td>
+              <td className="py-2">
+                <form action={updateItemState} className="inline">
+                  <input type="hidden" name="formType" value="update" />
+                  <input type="hidden" name="id" value={item.id} />
+                  <select
+                    name="point"
+                    value={item.point}
+                    onChange={(e) => e.target.form?.requestSubmit()}
+                    className="border rounded px-2 py-1"
+                  >
+                    {[0, 1, 2, 3, 4, 5].map((value) => (
+                      <option key={value} value={value}>
+                        {value}
+                      </option>
+                    ))}
+                  </select>
+                </form>
+              </td>
+              <td className="py-2">
+                <form onSubmit={handleDeleteClick} className="inline">
+                  <input type="hidden" name="formType" value="delete" />
+                  <input type="hidden" name="id" value={item.id} />
+                  <button
+                    type="submit"
+                    disabled={isPending}
+                    className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-colors"
+                  >
+                    削除
+                  </button>
+                </form>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
