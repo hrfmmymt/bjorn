@@ -213,13 +213,26 @@ function ItemManager() {
               <td className="py-2">{item.author || "N/A"}</td>
               <td className="py-2">{formatDate(item.created_at)}</td>
               <td className="py-2">
-                <form action={updateItemState} className="inline">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.currentTarget);
+                    updateItemState(formData);
+                  }}
+                  className="inline"
+                >
                   <input type="hidden" name="formType" value="update" />
                   <input type="hidden" name="id" value={item.id} />
                   <select
                     name="point"
                     value={item.point}
-                    onChange={(e) => e.target.form?.requestSubmit()}
+                    onChange={(e) => {
+                      startTransition(() => {
+                        const formData = new FormData(e.target.form!);
+                        formData.set("point", e.target.value);
+                        updateItemState(formData);
+                      });
+                    }}
                     className="border rounded px-2 py-1"
                   >
                     {[0, 1, 2, 3, 4, 5].map((value) => (
