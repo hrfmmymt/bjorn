@@ -13,6 +13,8 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.48.1",
     "@tailwindcss/vite": "^4.0.7",
+    "@zxing/browser": "^0.1.5",
+    "@zxing/library": "^0.21.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",

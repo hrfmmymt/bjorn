@@ -6,9 +6,10 @@ import {
   useRef,
   startTransition,
   FormEvent,
+  useState,
 } from "react";
 import { CgClose } from "react-icons/cg";
-import { HiPlus } from "react-icons/hi";
+import { HiPlus, HiQrcode } from "react-icons/hi";
 
 import { AuthProvider } from "./contexts/AuthProvider";
 import { useAuth } from "./hooks/useAuth";
@@ -22,6 +23,7 @@ import {
   handleDeleteItem,
 } from "./itemActions";
 import { supabase } from "./supabase";
+import { BarcodeScannerModal } from "./features/items/components/BarcodeScannerModal";
 
 async function fetchManageItem(): Promise<Item[]> {
   const { data, error } = await supabase
@@ -40,6 +42,7 @@ function ItemManager() {
   const addFormRef = useRef<HTMLFormElement>(null);
   const searchFormRef = useRef<HTMLFormElement>(null);
   const { signOut } = useAuth();
+  const [isScannerModalOpen, setIsScannerModalOpen] = useState(false);
 
   const [itemState, updateItemState, isPending] = useActionState(
     async (
@@ -102,8 +105,53 @@ function ItemManager() {
       .replace(/\//g, "-");
   };
 
-  const closeModal = () => {
-    (document.getElementById("my_modal_2") as HTMLDialogElement).close();
+  const closeAddItemModal = () => {
+    (document.getElementById("add_item_modal") as HTMLDialogElement)?.close();
+    if (addFormRef.current) {
+      addFormRef.current.reset();
+    }
+  };
+
+  const openScannerModal = () => {
+    setIsScannerModalOpen(true);
+    (
+      document.getElementById("barcode_modal") as HTMLDialogElement
+    )?.showModal();
+  };
+
+  const closeScannerModal = () => {
+    setIsScannerModalOpen(false);
+    (document.getElementById("barcode_modal") as HTMLDialogElement)?.close();
+  };
+
+  const handleScanComplete = (itemInfo: {
+    title: string;
+    author: string | null;
+    image: string | null;
+  }) => {
+    closeScannerModal();
+
+    // アイテム追加モーダルを開き、フォームに値をセット
+    const addModal = document.getElementById(
+      "add_item_modal"
+    ) as HTMLDialogElement;
+    addModal.showModal();
+
+    if (addFormRef.current) {
+      const titleInput = addFormRef.current.querySelector(
+        '[name="title"]'
+      ) as HTMLInputElement;
+      const authorInput = addFormRef.current.querySelector(
+        '[name="author"]'
+      ) as HTMLInputElement;
+      const imageInput = addFormRef.current.querySelector(
+        '[name="image"]'
+      ) as HTMLInputElement;
+
+      titleInput.value = itemInfo.title;
+      if (itemInfo.author) authorInput.value = itemInfo.author;
+      if (itemInfo.image) imageInput.value = itemInfo.image;
+    }
   };
 
   return (
@@ -117,29 +165,27 @@ function ItemManager() {
         </button>
       </header>
 
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex gap-4 mb-8">
         <button
           className="flex items-center gap-4 bg-transparent hover:bg-blue-500 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
           onClick={() =>
             (
-              document.getElementById("my_modal_2") as HTMLDialogElement
+              document.getElementById("add_item_modal") as HTMLDialogElement
             )?.showModal()
           }
         >
           <HiPlus size={20} />
           <span>新しいアイテムを追加</span>
         </button>
-        <dialog id="my_modal_2" className="modal">
+
+        <dialog id="add_item_modal" className="modal">
           <div className="modal-box relative">
             <h3 className="font-bold text-lg mb-4">アイテムの追加</h3>
             <form
               action={(formData: FormData) => {
                 try {
                   updateItemState(formData);
-                  closeModal();
-                  if (addFormRef.current) {
-                    addFormRef.current.reset();
-                  }
+                  closeAddItemModal();
                 } catch (error) {
                   console.error("Error adding item:", error);
                 }
@@ -198,9 +244,9 @@ function ItemManager() {
             <button
               className="absolute top-6 right-6"
               type="button"
-              onClick={closeModal}
+              onClick={closeAddItemModal}
             >
-              <CgClose aria-label="ダイアログを閉じる" size={28} />
+              <CgClose aria-label="アイテム追加ダイアログを閉じる" size={28} />
             </button>
           </div>
           <form method="dialog" className="modal-backdrop">
@@ -208,6 +254,22 @@ function ItemManager() {
           </form>
         </dialog>
 
+        <button
+          className="flex items-center gap-4 bg-transparent hover:bg-green-500 font-semibold hover:text-white py-2 px-4 border border-green-500 hover:border-transparent rounded"
+          onClick={openScannerModal}
+        >
+          <HiQrcode size={20} />
+          <span>バーコード読み取り</span>
+        </button>
+      </div>
+
+      <BarcodeScannerModal
+        isOpen={isScannerModalOpen}
+        onScanComplete={handleScanComplete}
+        onClose={closeScannerModal}
+      />
+
+      <div className="flex justify-between items-center mb-8">
         <form
           ref={searchFormRef}
           action={updateItemState}
