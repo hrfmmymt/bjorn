@@ -9,6 +9,7 @@ export const handleAddItem = async (
 ): Promise<ItemState> => {
   const title = formData.get("title") as string;
   const author = formData.get("author") as string;
+  const image = formData.get("image") as string;
   if (!title) throw new Error("Title is required");
 
   updateOptimisticItemList([
@@ -16,6 +17,7 @@ export const handleAddItem = async (
       id: Date.now(),
       title,
       author: author || null,
+      image: image || null,
       point: 0,
       created_at: new Date().toISOString(),
     },
@@ -28,6 +30,7 @@ export const handleAddItem = async (
       {
         title,
         author: author || null,
+        image: image || null,
         point: 0,
         user_id: (await supabase.auth.getUser()).data.user?.id,
       },

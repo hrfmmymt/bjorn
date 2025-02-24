@@ -172,6 +172,18 @@ function ItemManager() {
                   id="author"
                   type="text"
                   name="author"
+                  className="w-full border rounded px-2 py-1 mb-4"
+                />
+              </div>
+              <div>
+                <label htmlFor="image" className="block text-sm mb-1">
+                  画像URL
+                </label>
+                <input
+                  id="image"
+                  type="url"
+                  name="image"
+                  placeholder="https://example.com/image.jpg"
                   className="w-full border rounded px-2 py-1 mb-8"
                 />
               </div>
@@ -248,6 +260,7 @@ function ItemManager() {
             <tr>
               <th className="py-2 text-left">タイトル</th>
               <th className="py-2 text-left">著者</th>
+              <th className="py-2 text-left">画像</th>
               <th className="py-2 text-left">追加日時</th>
               <th className="py-2 text-left">ポイント</th>
               <th className="py-2 text-left">操作</th>
@@ -258,6 +271,11 @@ function ItemManager() {
               <tr key={item.id}>
                 <td className="py-2">{item.title}</td>
                 <td className="py-2">{item.author || "N/A"}</td>
+                <td className="py-2">
+                  {item.image !== null ? (
+                    <img src={item.image} width={100} />
+                  ) : null}
+                </td>
                 <td className="py-2">{formatDate(item.created_at)}</td>
                 <td className="py-2">
                   <form

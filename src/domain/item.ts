@@ -2,6 +2,7 @@ export type Item = {
   id: number;
   title: string;
   author: string | null;
+  image: string | null;
   point: 0 | 1 | 2 | 3 | 4 | 5;
   created_at: string;
 };
