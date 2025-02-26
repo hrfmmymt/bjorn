@@ -1,9 +1,23 @@
-import { AddFormData, SearchFormData, UpdateFormData } from "../domain/form";
+import {
+  AddFormData,
+  SearchFormData,
+  UpdateFormData,
+  UpdateFieldFormData,
+} from "../domain/form";
 
 export function getFormData(
   formData: FormData,
-): AddFormData | SearchFormData | UpdateFormData {
+): AddFormData | SearchFormData | UpdateFormData | UpdateFieldFormData {
   const formType = formData.get("formType") as string;
+
+  if (formType === "updateField") {
+    return {
+      formType: "updateField",
+      id: formData.get("id") as string,
+      field: formData.get("field") as "title" | "author" | "image",
+      value: formData.get("value") as string,
+    };
+  }
 
   switch (formType) {
     case "add":

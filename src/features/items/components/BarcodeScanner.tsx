@@ -36,7 +36,7 @@ export function BarcodeScanner({
             if (error && !(error instanceof Exception)) {
               console.error(error);
             }
-          }
+          },
         );
       } catch (error) {
         if (!(error instanceof Exception)) {

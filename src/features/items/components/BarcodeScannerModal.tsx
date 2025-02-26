@@ -40,7 +40,7 @@ export function BarcodeScannerModal({
       onScanComplete(itemInfo);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "不明なエラーが発生しました"
+        err instanceof Error ? err.message : "不明なエラーが発生しました",
       );
     }
   };

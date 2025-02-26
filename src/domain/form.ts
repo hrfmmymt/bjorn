@@ -14,4 +14,15 @@ export type UpdateFormData = {
   point: "0" | "1" | "2" | "3" | "4" | "5";
 };
 
-export type FormData = AddFormData | SearchFormData | UpdateFormData;
+export type UpdateFieldFormData = {
+  formType: "updateField";
+  id: string;
+  field: "title" | "author" | "image";
+  value: string;
+};
+
+export type FormData =
+  | AddFormData
+  | SearchFormData
+  | UpdateFormData
+  | UpdateFieldFormData;
