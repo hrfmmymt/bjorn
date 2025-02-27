@@ -66,10 +66,11 @@ export const handleSearchItemList = async (
     };
   }
 
+  // タイトルまたは著者名で検索
   const { data: filteredItemList, error } = await supabase
     .from("items")
     .select("*")
-    .ilike("title", `%${keyword}%`);
+    .or(`title.ilike.%${keyword}%,author.ilike.%${keyword}%`);
 
   if (error) throw error;
 
