@@ -3,6 +3,7 @@ type DiscogsResponse = {
     title: string;
     artist?: string;
     cover_image?: string;
+    format?: string[];
   }>;
 };
 
@@ -12,7 +13,7 @@ export async function fetchMusicInfo(barcode: string) {
     {
       headers: {
         Authorization: `Discogs token=${import.meta.env.VITE_DISCOGS_TOKEN}`,
-        "User-Agent": "YourAppName/1.0", // Discogsは User-Agent ヘッダーを要求します
+        "User-Agent": "YourAppName/1.0",
       },
     },
   );
@@ -32,5 +33,6 @@ export async function fetchMusicInfo(barcode: string) {
     title: music.title,
     author: music.artist || null,
     image: music.cover_image || null,
+    format: music.format ? music.format.join(', ') : null,
   };
 }

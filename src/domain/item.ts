@@ -3,6 +3,7 @@ export type Item = {
   title: string;
   author: string | null;
   image: string | null;
+  format: string | null;
   point: 0 | 1 | 2 | 3 | 4 | 5;
   created_at: string;
 };

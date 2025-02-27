@@ -17,7 +17,7 @@ export type UpdateFormData = {
 export type UpdateFieldFormData = {
   formType: "updateField";
   id: string;
-  field: "title" | "author" | "image";
+  field: "title" | "author" | "image" | "format";
   value: string;
 };
 
