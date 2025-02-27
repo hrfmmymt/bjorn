@@ -10,7 +10,7 @@ import {
   useEffect,
 } from "react";
 import { CgClose } from "react-icons/cg";
-import { HiPlus, HiQrcode, HiCamera, HiSearch } from "react-icons/hi";
+import { HiPlus, HiQrcode, HiCamera, HiSearch, HiTrash } from "react-icons/hi";
 
 import { AuthProvider } from "./contexts/AuthProvider";
 import { useAuth } from "./hooks/useAuth";
@@ -381,7 +381,7 @@ function ItemManager({ user }: { user: User }) {
             disabled={isPending}
             className="ml-2 px-3 py-2 transition-colors text-sm"
           >
-            解除
+            戻る
           </button>
         )}
       </div>
@@ -389,182 +389,188 @@ function ItemManager({ user }: { user: User }) {
       {optimisticItemList.length === 0 ? (
         <div className="w-full text-center">データがありません</div>
       ) : (
-        <table className="min-w-full">
-          <thead>
-            <tr>
-              <th className="py-2 text-left">タイトル</th>
-              <th className="py-2 text-left">著者</th>
-              <th className="py-2 text-left">画像</th>
-              <th className="py-2 text-left">追加日時</th>
-              <th className="py-2 text-left">ポイント</th>
-              <th className="py-2 text-left">操作</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {optimisticItemList.map((item: Item) => (
-              <tr key={item.id}>
-                <td className="py-2">
-                  {editingCell?.id === item.id &&
-                  editingCell?.field === "title" ? (
-                    <input
-                      type="text"
-                      defaultValue={editingCell.value}
-                      ref={titleInputRef}
-                      className="border rounded px-2 py-1 w-full"
-                      onBlur={(e) => handleCellUpdate(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleCellUpdate(e.currentTarget.value);
-                        } else if (e.key === "Escape") {
-                          setEditingCell(null);
-                        }
-                      }}
-                    />
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleCellClick(item.id, "title", item.title)
-                      }
-                      className="text-left w-full hover:border-gray-500 border-transparent border-2 px-2 py-1 rounded"
-                    >
-                      {item.title}
-                    </button>
-                  )}
-                </td>
-                <td className="py-2">
-                  {editingCell?.id === item.id &&
-                  editingCell?.field === "author" ? (
-                    <input
-                      type="text"
-                      defaultValue={editingCell.value}
-                      ref={authorInputRef}
-                      className="border rounded px-2 py-1 w-full"
-                      onBlur={(e) => handleCellUpdate(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleCellUpdate(e.currentTarget.value);
-                        } else if (e.key === "Escape") {
-                          setEditingCell(null);
-                        }
-                      }}
-                    />
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleCellClick(item.id, "author", item.author)
-                      }
-                      className="text-left w-full hover:border-gray-500 border-transparent border-2 px-2 py-1 rounded"
-                    >
-                      {item.author || "N/A"}
-                    </button>
-                  )}
-                </td>
-                <td className="py-2">
-                  {editingCell?.id === item.id &&
-                  editingCell?.field === "image" ? (
-                    <input
-                      type="text"
-                      defaultValue={editingCell.value}
-                      ref={imageInputRef}
-                      className="border rounded px-2 py-1 w-full"
-                      onBlur={(e) => handleCellUpdate(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleCellUpdate(e.currentTarget.value);
-                        } else if (e.key === "Escape") {
-                          setEditingCell(null);
-                        }
-                      }}
-                    />
-                  ) : (
-                    <>
-                      {item.image ? (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleCellClick(item.id, "image", item.image)
-                          }
-                          className="relative block w-[100px] h-[100px] group bg-gray-600"
-                        >
-                          <img
-                            src={item.image}
-                            alt=""
-                            className="w-full h-full object-contain"
-                          />
-                          <div className="absolute inset-0 bg-gray-500 bg-opacity-50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                            <HiCamera size={32} className="text-white" />
-                          </div>
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleCellClick(item.id, "image", item.image)
-                          }
-                          className="text-left w-full hover:border-gray-500 border-transparent border-2 px-2 py-1 rounded flex items-center gap-2"
-                        >
-                          <span>画像URLを追加</span>
-                        </button>
-                      )}
-                    </>
-                  )}
-                </td>
-                <td className="py-2">{formatDate(item.created_at)}</td>
-                <td className="py-2">
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      const formData = new FormData(e.currentTarget);
-                      updateItemState(formData);
-                    }}
-                    className="inline"
-                  >
-                    <input type="hidden" name="formType" value="update" />
-                    <input type="hidden" name="id" value={item.id} />
-                    <select
-                      name="point"
-                      value={item.point}
-                      onChange={(e) => {
-                        startTransition(() => {
-                          const formData = new FormData(
-                            e.target.form as HTMLFormElement,
-                          );
-                          formData.set("point", e.target.value);
-                          updateItemState(formData);
-                        });
-                      }}
-                      className="border rounded px-2 py-1"
-                    >
-                      {[0, 1, 2, 3, 4, 5].map((value) => (
-                        <option key={value} value={value}>
-                          {value}
-                        </option>
-                      ))}
-                    </select>
-                  </form>
-                </td>
-                <td className="py-2">
-                  <form onSubmit={handleDeleteClick} className="inline">
-                    <input type="hidden" name="formType" value="delete" />
-                    <input type="hidden" name="id" value={item.id} />
-                    <button
-                      type="submit"
-                      disabled={isPending}
-                      className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-colors"
-                    >
-                      削除
-                    </button>
-                  </form>
-                </td>
+        <div className="relative flex flex-col w-full h-full overflow-scroll bg-clip-border">
+          <table className="min-w-max table-auto">
+            <thead>
+              <tr>
+                <th className="p-2 text-left">タイトル</th>
+                <th className="p-2 text-left">著者</th>
+                <th className="p-2 text-left">画像</th>
+                <th className="p-2 text-left">追加日時</th>
+                <th className="p-2 text-left">ポイント</th>
+                <th className="p-2 text-left" />
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {optimisticItemList.map((item: Item) => (
+                <tr key={item.id}>
+                  <td className="py-2">
+                    {editingCell?.id === item.id &&
+                    editingCell?.field === "title" ? (
+                      <input
+                        type="text"
+                        defaultValue={editingCell.value}
+                        ref={titleInputRef}
+                        className="border rounded px-2 py-1 w-full"
+                        onBlur={(e) => handleCellUpdate(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleCellUpdate(e.currentTarget.value);
+                          } else if (e.key === "Escape") {
+                            setEditingCell(null);
+                          }
+                        }}
+                      />
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleCellClick(item.id, "title", item.title)
+                        }
+                        className="text-left w-full hover:border-gray-500 border-transparent border-2 px-2 py-1 rounded"
+                      >
+                        {item.title}
+                      </button>
+                    )}
+                  </td>
+                  <td className="py-2">
+                    {editingCell?.id === item.id &&
+                    editingCell?.field === "author" ? (
+                      <input
+                        type="text"
+                        defaultValue={editingCell.value}
+                        ref={authorInputRef}
+                        className="border rounded px-2 py-1 w-full"
+                        onBlur={(e) => handleCellUpdate(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleCellUpdate(e.currentTarget.value);
+                          } else if (e.key === "Escape") {
+                            setEditingCell(null);
+                          }
+                        }}
+                      />
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleCellClick(item.id, "author", item.author)
+                        }
+                        className="text-left w-full hover:border-gray-500 border-transparent border-2 px-2 py-1 rounded"
+                      >
+                        {item.author || "N/A"}
+                      </button>
+                    )}
+                  </td>
+                  <td className="p-2">
+                    {editingCell?.id === item.id &&
+                    editingCell?.field === "image" ? (
+                      <input
+                        type="text"
+                        defaultValue={editingCell.value}
+                        ref={imageInputRef}
+                        className="border rounded px-2 py-1 w-full"
+                        onBlur={(e) => handleCellUpdate(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleCellUpdate(e.currentTarget.value);
+                          } else if (e.key === "Escape") {
+                            setEditingCell(null);
+                          }
+                        }}
+                      />
+                    ) : (
+                      <>
+                        {item.image ? (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleCellClick(item.id, "image", item.image)
+                            }
+                            className="relative block w-[100px] h-[100px] group bg-gray-600"
+                          >
+                            <img
+                              src={item.image}
+                              alt=""
+                              className="w-full h-full object-contain"
+                            />
+                            <div className="absolute inset-0 bg-gray-800 bg-opacity-50 opacity-0 group-hover:opacity-70 flex items-center justify-center transition-opacity">
+                              <HiCamera size={32} className="text-white" />
+                            </div>
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleCellClick(item.id, "image", item.image)
+                            }
+                            className="text-left w-full hover:border-gray-500 border-transparent border-2 px-2 py-1 rounded flex items-center gap-2"
+                          >
+                            <span>画像URLを追加</span>
+                          </button>
+                        )}
+                      </>
+                    )}
+                  </td>
+                  <td className="py-2">
+                    <time dateTime={item.created_at} className="px-2">
+                      {formatDate(item.created_at)}
+                    </time>
+                  </td>
+                  <td className="py-2">
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        const formData = new FormData(e.currentTarget);
+                        updateItemState(formData);
+                      }}
+                      className="inline px-2"
+                    >
+                      <input type="hidden" name="formType" value="update" />
+                      <input type="hidden" name="id" value={item.id} />
+                      <select
+                        name="point"
+                        value={item.point}
+                        onChange={(e) => {
+                          startTransition(() => {
+                            const formData = new FormData(
+                              e.target.form as HTMLFormElement,
+                            );
+                            formData.set("point", e.target.value);
+                            updateItemState(formData);
+                          });
+                        }}
+                        className="select select-ghost w-full max-w-xs"
+                      >
+                        {[0, 1, 2, 3, 4, 5].map((value) => (
+                          <option key={value} value={value}>
+                            {value}
+                          </option>
+                        ))}
+                      </select>
+                    </form>
+                  </td>
+                  <td className="py-2">
+                    <form onSubmit={handleDeleteClick} className="inline px-2">
+                      <input type="hidden" name="formType" value="delete" />
+                      <input type="hidden" name="id" value={item.id} />
+                      <button
+                        type="submit"
+                        disabled={isPending}
+                        className="text-gray-300 px-2 py-1"
+                      >
+                        <HiTrash size={20} aria-label="削除" />
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
