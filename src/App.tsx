@@ -157,6 +157,7 @@ function ItemManager({ user }: { user: User }) {
     title: string;
     author: string | null;
     image: string | null;
+    format: string | null;
   }) => {
     closeScannerModal();
 
@@ -176,10 +177,14 @@ function ItemManager({ user }: { user: User }) {
       const imageInput = addFormRef.current.querySelector(
         '[name="image"]',
       ) as HTMLInputElement;
+      const formatInput = addFormRef.current.querySelector(
+        '[name="format"]',
+      ) as HTMLInputElement;
 
-      titleInput.value = itemInfo.title;
-      if (itemInfo.author) authorInput.value = itemInfo.author;
-      if (itemInfo.image) imageInput.value = itemInfo.image;
+      if (titleInput) titleInput.value = itemInfo.title || '';
+      if (authorInput) authorInput.value = itemInfo.author || '';
+      if (imageInput) imageInput.value = itemInfo.image || '';
+      if (formatInput) formatInput.value = itemInfo.format || '';
     }
   };
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { BarcodeScanner } from "./BarcodeScanner";
 import { fetchBookInfo } from "../services/bookApi";
 import { fetchMusicInfo } from "../services/musicApi";
@@ -10,6 +10,7 @@ type BarcodeScannerModalProps = {
     title: string;
     author: string | null;
     image: string | null;
+    format: string | null;
   }) => void;
   onClose: () => void;
 };
@@ -20,11 +21,28 @@ export function BarcodeScannerModal({
   onClose,
 }: BarcodeScannerModalProps) {
   const [error, setError] = useState<string | null>(null);
+  const [processing, setProcessing] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const handleDetected = async (barcode: string) => {
     try {
+      // 処理中の場合は重複スキャンを防止
+      if (processing) return;
+      
+      setProcessing(true);
       setError(null);
-      let itemInfo;
+      
+      // スキャン成功音を再生
+      if (audioRef.current) {
+        audioRef.current.play();
+      }
+      
+      let itemInfo: {
+        title: string;
+        author: string | null;
+        image: string | null;
+        format: string | null;
+      };
 
       // ISBNの場合（13桁または10桁の数字）
       if (/^(\d{13}|\d{10})$/.test(barcode)) {
@@ -37,11 +55,29 @@ export function BarcodeScannerModal({
         throw new Error("未対応のバーコード形式です");
       }
 
+      // Web Audio APIを使用して「ピッ」を生成
+      const audioContext = new (window.AudioContext || 
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.type = 'sine';
+      oscillator.frequency.value = 1000; // 1000Hzの音
+      gainNode.gain.value = 0.5; // 音量
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.start();
+      setTimeout(() => oscillator.stop(), 100); // 再生時間0.1秒
+
       onScanComplete(itemInfo);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "不明なエラーが発生しました",
       );
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -68,7 +104,9 @@ export function BarcodeScannerModal({
         </button>
       </div>
       <form method="dialog" className="modal-backdrop">
-        <button>ダイアログを閉じる</button>
+        <button type="button" onClick={onClose}>
+          ダイアログを閉じる
+        </button>
       </form>
     </dialog>
   );

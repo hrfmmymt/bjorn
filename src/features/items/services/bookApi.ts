@@ -30,5 +30,6 @@ export async function fetchBookInfo(isbn: string) {
     title: book.title,
     author: book.authors ? book.authors[0] : null,
     image: book.imageLinks?.thumbnail || null,
+    format: "書籍",
   };
 }
