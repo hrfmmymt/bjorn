@@ -48,12 +48,13 @@ function ItemManager({ user }: { user: User }) {
   const [isScannerModalOpen, setIsScannerModalOpen] = useState(false);
   const [editingCell, setEditingCell] = useState<{
     id: number;
-    field: "title" | "author" | "image";
+    field: "title" | "author" | "image" | "format";
     value: string;
   } | null>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
   const authorInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const formatInputRef = useRef<HTMLInputElement>(null);
 
   const [itemState, updateItemState, isPending] = useActionState(
     async (
@@ -105,6 +106,8 @@ function ItemManager({ user }: { user: User }) {
       authorInputRef.current.focus();
     } else if (editingCell.field === "image" && imageInputRef.current) {
       imageInputRef.current.focus();
+    } else if (editingCell.field === "format" && formatInputRef.current) {
+      formatInputRef.current.focus();
     }
   }, [editingCell]);
 
@@ -182,8 +185,8 @@ function ItemManager({ user }: { user: User }) {
 
   const handleCellClick = (
     id: number,
-    field: "title" | "author" | "image",
-    value: string | null,
+    field: "title" | "author" | "image" | "format",
+    value: string | null
   ) => {
     setEditingCell({
       id,
@@ -304,6 +307,17 @@ function ItemManager({ user }: { user: User }) {
                   className="w-full border rounded px-2 py-1 mb-8"
                 />
               </div>
+              <div>
+                <label htmlFor="format" className="block text-sm mb-1">
+                  フォーマット
+                </label>
+                <input
+                  id="format"
+                  type="text"
+                  name="format"
+                  className="w-full border rounded px-2 py-1 mb-8"
+                />
+              </div>
               <button
                 type="submit"
                 disabled={isPending}
@@ -396,6 +410,7 @@ function ItemManager({ user }: { user: User }) {
                 <th className="p-2 text-left">タイトル</th>
                 <th className="p-2 text-left">著者</th>
                 <th className="p-2 text-left">画像</th>
+                <th className="p-2 text-left">フォーマット</th>
                 <th className="p-2 text-left">追加日時</th>
                 <th className="p-2 text-left">ポイント</th>
                 <th className="p-2 text-left" />
@@ -513,6 +528,33 @@ function ItemManager({ user }: { user: User }) {
                           </button>
                         )}
                       </>
+                    )}
+                  </td>
+                  <td className="py-2">
+                    {editingCell?.id === item.id && editingCell?.field === "format" ? (
+                      <input
+                        type="text"
+                        defaultValue={editingCell.value}
+                        ref={formatInputRef}
+                        className="border rounded px-2 py-1 w-full"
+                        onBlur={(e) => handleCellUpdate(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleCellUpdate(e.currentTarget.value);
+                          } else if (e.key === "Escape") {
+                            setEditingCell(null);
+                          }
+                        }}
+                      />
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleCellClick(item.id, "format", item.format)}
+                        className="text-left w-full hover:border-gray-500 border-transparent border-2 px-2 py-1 rounded"
+                      >
+                        {item.format || "N/A"}
+                      </button>
                     )}
                   </td>
                   <td className="py-2">

@@ -14,7 +14,7 @@ export function getFormData(
     return {
       formType: "updateField",
       id: formData.get("id") as string,
-      field: formData.get("field") as "title" | "author" | "image",
+      field: formData.get("field") as "title" | "author" | "image" | "format",
       value: formData.get("value") as string,
     };
   }
