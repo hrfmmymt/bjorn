@@ -1,7 +1,7 @@
 import { Item, ItemState } from "./domain/item";
 import { supabase } from "./supabase";
 import { getFormData } from "./utils/form";
-import { UpdateFieldFormData } from "./utils/form";
+import { UpdateFieldFormData } from "./domain/form";
 
 export const handleAddItem = async (
   prevState: ItemState,
