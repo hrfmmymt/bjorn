@@ -1,12 +1,19 @@
 import { supabase } from "../supabase";
 
 export function Auth() {
+  const getRedirectUrl = () => {
+    const isProd = import.meta.env.PROD;
+    return isProd 
+      ? `${window.location.origin}/auth/callback`
+      : 'http://localhost:3000/auth/callback';
+  };
+
   const handleGoogleLogin = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: getRedirectUrl(),
         },
       });
       if (error) {
@@ -20,6 +27,7 @@ export function Auth() {
 
   return (
     <button
+      type="button"
       onClick={handleGoogleLogin}
       className="flex items-center justify-center gap-2 px-4 py-2 bg-white text-gray-800 rounded-lg border hover:bg-gray-50 transition-colors"
     >
