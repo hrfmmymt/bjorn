@@ -181,17 +181,17 @@ function ItemManager({ user }: { user: User }) {
         '[name="format"]',
       ) as HTMLInputElement;
 
-      if (titleInput) titleInput.value = itemInfo.title || '';
-      if (authorInput) authorInput.value = itemInfo.author || '';
-      if (imageInput) imageInput.value = itemInfo.image || '';
-      if (formatInput) formatInput.value = itemInfo.format || '';
+      if (titleInput) titleInput.value = itemInfo.title || "";
+      if (authorInput) authorInput.value = itemInfo.author || "";
+      if (imageInput) imageInput.value = itemInfo.image || "";
+      if (formatInput) formatInput.value = itemInfo.format || "";
     }
   };
 
   const handleCellClick = (
     id: number,
     field: "title" | "author" | "image" | "format",
-    value: string | null
+    value: string | null,
   ) => {
     setEditingCell({
       id,
@@ -536,7 +536,8 @@ function ItemManager({ user }: { user: User }) {
                     )}
                   </td>
                   <td className="py-2">
-                    {editingCell?.id === item.id && editingCell?.field === "format" ? (
+                    {editingCell?.id === item.id &&
+                    editingCell?.field === "format" ? (
                       <input
                         type="text"
                         defaultValue={editingCell.value}
@@ -555,7 +556,9 @@ function ItemManager({ user }: { user: User }) {
                     ) : (
                       <button
                         type="button"
-                        onClick={() => handleCellClick(item.id, "format", item.format)}
+                        onClick={() =>
+                          handleCellClick(item.id, "format", item.format)
+                        }
                         className="text-left w-full hover:border-gray-500 border-transparent border-2 px-2 py-1 rounded"
                       >
                         {item.format || "N/A"}

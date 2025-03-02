@@ -28,15 +28,15 @@ export function BarcodeScannerModal({
     try {
       // 処理中の場合は重複スキャンを防止
       if (processing) return;
-      
+
       setProcessing(true);
       setError(null);
-      
+
       // スキャン成功音を再生
       if (audioRef.current) {
         audioRef.current.play();
       }
-      
+
       let itemInfo: {
         title: string;
         author: string | null;
@@ -56,18 +56,19 @@ export function BarcodeScannerModal({
       }
 
       // Web Audio APIを使用して「ピッ」を生成
-      const audioContext = new (window.AudioContext || 
-        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+      const audioContext = new (window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext })
+          .webkitAudioContext)();
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
-      
-      oscillator.type = 'sine';
+
+      oscillator.type = "sine";
       oscillator.frequency.value = 1000; // 1000Hzの音
       gainNode.gain.value = 0.5; // 音量
-      
+
       oscillator.connect(gainNode);
       gainNode.connect(audioContext.destination);
-      
+
       oscillator.start();
       setTimeout(() => oscillator.stop(), 100); // 再生時間0.1秒
 

@@ -33,6 +33,6 @@ export async function fetchMusicInfo(barcode: string) {
     title: music.title,
     author: music.artist || null,
     image: music.cover_image || null,
-    format: music.format ? music.format.join(', ') : null,
+    format: music.format ? music.format.join(", ") : null,
   };
 }
