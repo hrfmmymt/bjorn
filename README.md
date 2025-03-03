@@ -1,50 +1,72 @@
-# React + TypeScript + Vite
+# Bjorn - Book & Music Collection Manager
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Bjorn is a web application for managing personal book and music collections. You can easily add items using the barcode scanning feature, rate them, and organize your collection.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Authentication with Google account
+- Add, edit, and delete items (books & music)
+- Automatic information retrieval via barcode scanning
+- Item search functionality
+- 6-level rating system
 
-## Expanding the ESLint configuration
+## Technology Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- **Frontend**: React 19, TypeScript, Tailwind CSS, DaisyUI
+- **Backend**: Supabase (authentication & database)
+- **Build Tool**: Vite
+- **Package Manager**: pnpm
+- **Libraries**:
+  - react-router-dom: Routing
+  - @zxing/library: Barcode scanning
+  - react-icons: Icons
 
-- Configure the top-level `parserOptions` property like this:
+## Development Setup
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-});
+### Prerequisites
+
+- Node.js 18 or higher
+- pnpm 10 or higher
+- Supabase account
+- Google OAuth configuration
+- Discogs API Token (for music information retrieval)
+
+### Environment Variables
+
+Create a `.env` file in the project root and set the following environment variables:
+
+```
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_DISCOGS_TOKEN=your_discogs_api_token
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+### Installation and Running
 
-```js
-// eslint.config.js
-import react from "eslint-plugin-react";
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: "18.3" } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs["jsx-runtime"].rules,
-  },
-});
 ```
+# Install dependencies
+pnpm install
+
+# Start development server
+pnpm dev
+
+# Build for production
+pnpm build
+
+# Preview production build
+pnpm preview
+
+# Format code
+pnpm format
+
+# Lint code
+pnpm lint
+```
+
+## Deployment
+
+Deploy the `dist` directory after building to your preferred hosting service (Vercel, Netlify, Firebase Hosting, etc.).
+
+## License
+
+MIT
