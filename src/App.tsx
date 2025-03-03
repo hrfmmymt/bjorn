@@ -246,15 +246,14 @@ function ItemManager({ user }: { user: User }) {
       <div className="flex gap-4 mb-8">
         <button
           type="button"
-          className="flex items-center gap-4 bg-transparent hover:bg-blue-500 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+          className="flex items-center gap-4 bg-transparent hover:bg-blue-500 font-semibold hover:text-white p-4 border border-blue-500 hover:border-transparent rounded-full"
           onClick={() =>
             (
               document.getElementById("add_item_modal") as HTMLDialogElement
             )?.showModal()
           }
         >
-          <HiPlus size={20} />
-          <span>新しいアイテムを追加</span>
+          <HiPlus size={20} aria-label="add new item" />
         </button>
 
         <dialog id="add_item_modal" className="modal">
@@ -346,11 +345,10 @@ function ItemManager({ user }: { user: User }) {
 
         <button
           type="button"
-          className="flex items-center gap-4 bg-transparent hover:bg-green-500 font-semibold hover:text-white py-2 px-4 border border-green-500 hover:border-transparent rounded"
+          className="flex items-center gap-4 bg-transparent hover:bg-green-500 font-semibold hover:text-white p-4 border border-green-500 hover:border-transparent rounded-full"
           onClick={openScannerModal}
         >
-          <HiQrcode size={20} />
-          <span>バーコード読み取り</span>
+          <HiQrcode size={20} aria-label="scan barcode" />
         </button>
 
         <BarcodeScannerModal
@@ -370,7 +368,7 @@ function ItemManager({ user }: { user: User }) {
           <input
             type="text"
             name="keyword"
-            placeholder="検索..."
+            placeholder="search..."
             defaultValue={itemState.keyword}
             className="w-full border rounded-sm px-4 py-2 pr-10"
           />
