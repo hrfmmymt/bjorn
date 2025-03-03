@@ -2,6 +2,8 @@
 
 Bjorn is a web application for managing personal book and music collections. You can easily add items using the barcode scanning feature, rate them, and organize your collection.
 
+<img width="1294" alt="スクリーンショット 2025-03-04 0 54 09" src="https://github.com/user-attachments/assets/0706a07f-8ef6-410c-8e98-4977087aa650" />
+
 ## Features
 
 - Authentication with Google account
@@ -40,6 +42,7 @@ Create a `.env` file in the project root and set the following environment varia
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 VITE_DISCOGS_TOKEN=your_discogs_api_token
+VITE_PRODUCTION_URL=your_production_url
 ```
 
 ### Installation and Running
