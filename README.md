@@ -20,6 +20,7 @@ Bjorn is a web application for managing personal book and music collections. You
   - react-router-dom: Routing
   - @zxing/library: Barcode scanning
   - react-icons: Icons
+  - @testing-library/react: Testing
 
 ## Development Setup
 
@@ -55,6 +56,9 @@ pnpm build
 
 # Preview production build
 pnpm preview
+
+# Run tests
+pnpm test
 
 # Format code
 pnpm format
