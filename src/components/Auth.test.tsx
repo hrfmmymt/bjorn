@@ -1,7 +1,7 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { Auth } from "./Auth";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { supabase } from "../supabase";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { Auth } from "./Auth";
 
 // supabaseのモック
 vi.mock("../supabase", () => ({
@@ -19,7 +19,7 @@ describe("Auth", () => {
 
   it("ログインボタンが表示されること", () => {
     render(<Auth />);
-    const loginButton = screen.getByText(/Googleでログイン/i);
+    const loginButton = screen.getByText(/Sign in with Google/i);
     expect(loginButton).toBeInTheDocument();
   });
 
@@ -31,7 +31,7 @@ describe("Auth", () => {
     ).mockImplementation(mockSignIn);
 
     render(<Auth />);
-    const loginButton = screen.getByText(/Googleでログイン/i);
+    const loginButton = screen.getByText(/Sign in with Google/i);
 
     fireEvent.click(loginButton);
 

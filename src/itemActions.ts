@@ -1,12 +1,12 @@
-import { Item, ItemState } from "./domain/item";
+import type { UpdateFieldFormData } from "./domain/form";
+import type { Item, ItemState } from "./domain/item";
 import { supabase } from "./supabase";
 import { getFormData } from "./utils/form";
-import { UpdateFieldFormData } from "./domain/form";
 
 export const handleAddItem = async (
   prevState: ItemState,
   formData: FormData,
-  updateOptimisticItemList: (prevState: Item[]) => void,
+  updateOptimisticItemList: (prevState: Item[]) => void
 ): Promise<ItemState> => {
   const title = formData.get("title") as string;
   const author = formData.get("author") as string;
@@ -55,7 +55,7 @@ export const handleAddItem = async (
 
 export const handleSearchItemList = async (
   prevState: ItemState,
-  formData: FormData,
+  formData: FormData
 ): Promise<ItemState> => {
   const keyword = formData.get("keyword") as string;
   const isReset = formData.get("reset") === "true";
@@ -87,7 +87,7 @@ export const handleSearchItemList = async (
 export const handleUpdateItemPoint = async (
   prevState: ItemState,
   rawFormData: FormData,
-  updateOptimisticItemList: (prevState: Item[]) => void,
+  updateOptimisticItemList: (prevState: Item[]) => void
 ): Promise<ItemState> => {
   const formData = getFormData(rawFormData);
   if (formData.formType !== "update") throw new Error("Invalid form type");
@@ -99,8 +99,8 @@ export const handleUpdateItemPoint = async (
     prevState.filteredItemList ?? prevState.allItemList;
   updateOptimisticItemList(
     currentDisplayList.map((item) =>
-      item.id === id ? { ...item, point } : item,
-    ),
+      item.id === id ? { ...item, point } : item
+    )
   );
 
   const { data: updatedItem, error } = await supabase
@@ -113,12 +113,12 @@ export const handleUpdateItemPoint = async (
   if (error) throw error;
 
   const updatedItemList = prevState.allItemList.map((item) =>
-    item.id === id ? updatedItem : item,
+    item.id === id ? updatedItem : item
   );
 
   const updatedFilteredItemList = prevState.filteredItemList
     ? prevState.filteredItemList.map((item) =>
-        item.id === id ? updatedItem : item,
+        item.id === id ? updatedItem : item
       )
     : null;
 
@@ -132,7 +132,7 @@ export const handleUpdateItemPoint = async (
 export const handleDeleteItem = async (
   prevState: ItemState,
   formData: FormData,
-  updateOptimisticItemList: (prevState: Item[]) => void,
+  updateOptimisticItemList: (prevState: Item[]) => void
 ): Promise<ItemState> => {
   const id = Number(formData.get("id"));
   if (!id) throw new Error("Item ID is required");
@@ -160,7 +160,7 @@ export const handleDeleteItem = async (
 export const handleUpdateItemField = async (
   prevState: ItemState,
   rawFormData: FormData,
-  updateOptimisticItemList: (prevState: Item[]) => void,
+  updateOptimisticItemList: (prevState: Item[]) => void
 ): Promise<ItemState> => {
   const formData = getFormData(rawFormData) as UpdateFieldFormData;
   if (formData.formType !== "updateField") throw new Error("Invalid form type");
@@ -179,8 +179,8 @@ export const handleUpdateItemField = async (
 
   updateOptimisticItemList(
     currentDisplayList.map((item) =>
-      item.id === id ? { ...item, [field]: value || null } : item,
-    ),
+      item.id === id ? { ...item, [field]: value || null } : item
+    )
   );
 
   const { data: updatedItem, error } = await supabase
@@ -193,12 +193,12 @@ export const handleUpdateItemField = async (
   if (error) throw error;
 
   const updatedItemList = prevState.allItemList.map((item) =>
-    item.id === id ? updatedItem : item,
+    item.id === id ? updatedItem : item
   );
 
   const updatedFilteredItemList = prevState.filteredItemList
     ? prevState.filteredItemList.map((item) =>
-        item.id === id ? updatedItem : item,
+        item.id === id ? updatedItem : item
       )
     : null;
 

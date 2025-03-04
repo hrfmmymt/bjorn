@@ -1,6 +1,6 @@
-import { ReactNode, useEffect, useState } from "react";
-import { AuthContext, AuthContextType } from "./AuthContext";
+import { type ReactNode, useEffect, useState } from "react";
 import { supabase } from "../supabase";
+import { AuthContext, type AuthContextType } from "./AuthContext";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthContextType["user"]>(null);

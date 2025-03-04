@@ -27,7 +27,7 @@ export function AuthCallback() {
         }
       } catch (err) {
         setError(
-          err instanceof Error ? err.message : "認証エラーが発生しました",
+          err instanceof Error ? err.message : "認証エラーが発生しました"
         );
       }
     };

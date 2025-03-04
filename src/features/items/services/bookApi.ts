@@ -12,7 +12,7 @@ type GoogleBooksResponse = {
 
 export async function fetchBookInfo(isbn: string) {
   const response = await fetch(
-    `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`,
+    `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`
   );
 
   if (!response.ok) {

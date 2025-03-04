@@ -15,7 +15,7 @@ export async function fetchMusicInfo(barcode: string) {
         Authorization: `Discogs token=${import.meta.env.VITE_DISCOGS_TOKEN}`,
         "User-Agent": "YourAppName/1.0",
       },
-    },
+    }
   );
 
   if (!response.ok) {

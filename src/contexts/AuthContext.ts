@@ -1,5 +1,5 @@
+import type { User } from "@supabase/supabase-js";
 import { createContext } from "react";
-import { User } from "@supabase/supabase-js";
 
 export type AuthContextType = {
   user: User | null;

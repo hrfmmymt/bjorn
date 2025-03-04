@@ -1,12 +1,12 @@
-import {
+import type {
   AddFormData,
   SearchFormData,
-  UpdateFormData,
   UpdateFieldFormData,
+  UpdateFormData,
 } from "../domain/form";
 
 export function getFormData(
-  formData: FormData,
+  formData: FormData
 ): AddFormData | SearchFormData | UpdateFormData | UpdateFieldFormData {
   const formType = formData.get("formType") as string;
 

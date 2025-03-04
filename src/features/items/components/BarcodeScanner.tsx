@@ -1,5 +1,5 @@
-import { useEffect, useRef } from "react";
 import { BrowserMultiFormatReader, Exception } from "@zxing/library";
+import { useEffect, useRef } from "react";
 
 type BarcodeScannerProps = {
   onDetected: (result: string) => void;
@@ -26,9 +26,13 @@ export function BarcodeScanner({
           throw new Error("カメラが見つかりません");
         }
 
+        if (!videoRef.current) {
+          throw new Error("ビデオ要素が見つかりません");
+        }
+
         await codeReader.decodeFromVideoDevice(
           null,
-          videoRef.current!,
+          videoRef.current,
           (result, error) => {
             if (result) {
               onDetected(result.getText());
@@ -36,7 +40,7 @@ export function BarcodeScanner({
             if (error && !(error instanceof Exception)) {
               console.error(error);
             }
-          },
+          }
         );
       } catch (error) {
         if (!(error instanceof Exception)) {
@@ -54,7 +58,11 @@ export function BarcodeScanner({
 
   return (
     <div className="relative">
-      <video ref={videoRef} className="w-full" />
+      <video
+        ref={videoRef}
+        className="w-full"
+        aria-label="バーコードスキャナー"
+      />
     </div>
   );
 }

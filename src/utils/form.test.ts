@@ -1,5 +1,5 @@
+import { describe, expect, it } from "vitest";
 import { getFormData } from "./form";
-import { describe, it, expect } from "vitest";
 
 describe("getFormData", () => {
   it("formTypeがaddの場合、AddFormDataを返すこと", () => {

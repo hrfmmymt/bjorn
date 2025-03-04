@@ -1,8 +1,8 @@
-import { useState, useRef } from "react";
-import { BarcodeScanner } from "./BarcodeScanner";
+import { useRef, useState } from "react";
+import { CgClose } from "react-icons/cg";
 import { fetchBookInfo } from "../services/bookApi";
 import { fetchMusicInfo } from "../services/musicApi";
-import { CgClose } from "react-icons/cg";
+import { BarcodeScanner } from "./BarcodeScanner";
 
 type BarcodeScannerModalProps = {
   isOpen: boolean;
@@ -56,9 +56,11 @@ export function BarcodeScannerModal({
       }
 
       // Web Audio APIを使用して「ピッ」を生成
-      const audioContext = new (window.AudioContext ||
+      const audioContext = new (
+        window.AudioContext ||
         (window as unknown as { webkitAudioContext: typeof AudioContext })
-          .webkitAudioContext)();
+          .webkitAudioContext
+      )();
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
 
@@ -75,7 +77,7 @@ export function BarcodeScannerModal({
       onScanComplete(itemInfo);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "不明なエラーが発生しました",
+        err instanceof Error ? err.message : "不明なエラーが発生しました"
       );
     } finally {
       setProcessing(false);
