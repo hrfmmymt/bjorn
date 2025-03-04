@@ -21,8 +21,10 @@ export function SearchForm({
 }: SearchFormProps) {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    onSearch(formData);
+    startTransition(() => {
+      const formData = new FormData(e.currentTarget);
+      onSearch(formData);
+    });
   };
 
   return (

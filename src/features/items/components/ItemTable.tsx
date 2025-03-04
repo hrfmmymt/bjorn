@@ -74,8 +74,10 @@ export function ItemTable({
   const handleDeleteClick = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (window.confirm("このアイテムを削除してもよろしいですか？")) {
-      const formData = new FormData(e.currentTarget);
-      onDeleteItem(formData);
+      startTransition(() => {
+        const formData = new FormData(e.currentTarget);
+        onDeleteItem(formData);
+      });
     }
   };
 

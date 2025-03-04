@@ -139,6 +139,7 @@ export const handleDeleteItem = async (
 
   const currentDisplayList =
     prevState.filteredItemList ?? prevState.allItemList;
+
   updateOptimisticItemList(currentDisplayList.filter((item) => item.id !== id));
 
   const { error } = await supabase.from("items").delete().eq("id", id);
